@@ -10,7 +10,7 @@ using ComBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
 
 namespace Export3D
 {
-    [PluginAttribute("Test", "ADSK", DisplayName = "Test")]
+    [PluginAttribute("Test", "ADSK", DisplayName = "OBJ Exporter")]
     [AddInPluginAttribute(AddInLocation.AddIn)]
     public class Exporter : AddInPlugin
     {
@@ -28,17 +28,10 @@ namespace Export3D
             {
                 foreach (InwOaFragment3 frag in path.Fragments())
                 {
-                    // frag.GenerateSimplePrimitives(nwEVertexProperty.eNORMAL, listener);
-
-                    //var matrix = (InwLTransform3f3)(object)frag.GetLocalToWorldMatrix();
-                    //var translation = matrix.GetTranslation();
                     try
                     {
-                        //var matrix = (InwLTransform3f3)(object)frag.GetLocalToWorldMatrix();
-
-                        COMApi.InwLTransform3f a = frag.GetLocalToWorldMatrix();
-                        object obj = a.Matrix;
-                        Array.Copy((Array)obj, listener.matrix, 16);
+                        Autodesk.Navisworks.Api.Interop.ComApi.InwLTransform3f3 localToWorld = (Autodesk.Navisworks.Api.Interop.ComApi.InwLTransform3f3)(object)frag.GetLocalToWorldMatrix();
+                        listener.coordinateStandard = localToWorld;
 
                         frag.GenerateSimplePrimitives(nwEVertexProperty.eNORMAL, listener);
                     }
@@ -50,13 +43,6 @@ namespace Export3D
             }
             Mesh.instance.ExportTo();
             return 0;
-        }
-
-        private List<double> ConvertMatrix(InwLTransform3f3 matrix)
-        {
-            
-
-            return null;
         }
     }
 }
