@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Export3D
+namespace Model2OBJ
 {
     internal class Mesh
     {
@@ -22,26 +22,38 @@ namespace Export3D
             vertexes.Add(x);
             vertexes.Add(y);
             vertexes.Add(z);
+
             faceIndexes.Add(vertexes.Count - 3);
             faceIndexes.Add(vertexes.Count - 2);
             faceIndexes.Add(vertexes.Count - 1);
         }
-        public void ExportTo(string filePath = "D:\\output.obj")
+        public void Export()
         {
             try
             {
-                using (StreamWriter writer = new StreamWriter(filePath))
-                {
-                    foreach (var point in vertexes)
-                    {
-                        writer.WriteLine(String.Format("v {0:0.000} {1:0.000} {2:0.000}", (float)point.X, (float)point.Y, (float)point.Z));
-                    }
+                SaveFileDialog saveDialog = new SaveFileDialog();
 
-                    for (int i = 0; i < faceIndexes.Count; i = i + 3)
+                saveDialog.Title = "Save as .obj file";
+                saveDialog.Filter = "OBJ files (*.obj)|*.obj";
+                saveDialog.FileName = String.Format("Navisworks Model - {0}.obj", DateTime.Now.ToString("MMdd-HHmm"));
+                saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string location = saveDialog.FileName;
+                    using (StreamWriter writer = new StreamWriter(location))
                     {
-                        writer.WriteLine(String.Format("f {0} {1} {2}", faceIndexes[i] + 1, faceIndexes[i + 1] + 1, faceIndexes[i + 2] + 1));
+                        foreach (var vertex in vertexes)
+                        {
+                            writer.WriteLine(String.Format("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
+                        }
+
+                        for (int i = 0; i < faceIndexes.Count; i = i + 3)
+                        {
+                            writer.WriteLine(String.Format("f {0} {1} {2}", faceIndexes[i] + 1, faceIndexes[i + 1] + 1, faceIndexes[i + 2] + 1));
+                        }
+                        writer.Close();
                     }
-                    writer.Close();
                 }
             }
             catch (Exception ex)

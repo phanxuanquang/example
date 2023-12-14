@@ -1,9 +1,8 @@
 ﻿using Autodesk.Navisworks.Api;
 using System;
-using System.Collections.Generic;
 using COMApi = Autodesk.Navisworks.Api.Interop.ComApi;
 
-namespace Export3D
+namespace Model2OBJ
 {
     internal class CallbackGeomListener : COMApi.InwSimplePrimitivesCB
     {

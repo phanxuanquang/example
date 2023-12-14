@@ -1,21 +1,12 @@
-﻿using System;
+﻿using Autodesk.Navisworks.Api;
+using Autodesk.Navisworks.Api.DocumentParts;
+using Autodesk.Navisworks.Api.Plugins;
+using System;
 using System.Windows.Forms;
 
-//Add two new namespaces
-using Autodesk.Navisworks.Api;
-using Autodesk.Navisworks.Api.Plugins;
-using Autodesk.Navisworks.Api.DocumentParts;
-
-using ComBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
-
-using COMApi = Autodesk.Navisworks.Api.Interop.ComApi;
-using System.Collections.Generic;
-using System.IO;
-
-namespace example
+namespace Viewer
 {
-
-    [PluginAttribute("BasicPlugIn.ABasicPlugin", "ADSK", ToolTip = "View all properties of active model.", DisplayName = "Model Viewer")]
+    [PluginAttribute("Model Viewer", "ADSK", ToolTip = "View all properties of active model", DisplayName = "Model Viewer")]
 
     public class Handler : AddInPlugin
     {
@@ -26,12 +17,12 @@ namespace example
                 Document doc = Autodesk.Navisworks.Api.Application.ActiveDocument;
                 DocumentModels models = doc.Models;
                 Model model = models.First;
-                ModelItem rootItem = model.RootItem;
-                ModelItemEnumerableCollection modelItems = rootItem.DescendantsAndSelf;
+                ModelItem rootItem = doc.Models.First.RootItem;
+                //ModelItemEnumerableCollection modelItems = rootItem.DescendantsAndSelf;
 
                 TreeNode root = new TreeNode(rootItem.DisplayName);
 
-                var ModelViewForm = new ShowForm();
+                var ModelViewForm = new ModelViewing();
 
                 ModelViewForm.ModelHiariachyTree.Nodes.Add(root);
                 LoadModelsToTreeView(rootItem, root);
@@ -56,11 +47,11 @@ namespace example
     }
     public class ModelNode : TreeNode
     {
-        public ModelItem modelItem { get; set; }
+        public ModelItem modelItem { get; }
         public ModelNode(string name = "No Name", ModelItem item = null)
         {
-            this.Text = name;
-            this.modelItem = item;
+            Text = name;
+            modelItem = item;
         }
     }
 }

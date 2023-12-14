@@ -7,16 +7,17 @@
     <ProjectGuid>{8DA0C36E-A542-4E02-80D6-6E8C166A4EE7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>example</RootNamespace>
-    <AssemblyName>example</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RootNamespace>ModelViewer</RootNamespace>
+    <AssemblyName>Model Viewer</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -56,20 +57,24 @@
   <ItemGroup>
     <Compile Include="Handler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShowForm.cs">
+    <Compile Include="ModelViewing.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ShowForm.Designer.cs">
-      <DependentUpon>ShowForm.cs</DependentUpon>
+    <Compile Include="ModelViewing.Designer.cs">
+      <DependentUpon>ModelViewing.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ShowForm.resx">
-      <DependentUpon>ShowForm.cs</DependentUpon>
+    <EmbeddedResource Include="ModelViewing.resx">
+      <DependentUpon>ModelViewing.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy/Y "$(TargetDir)." "C:\Program Files\Autodesk\Navisworks Manage 2023\Plugins\$(TargetName)\"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

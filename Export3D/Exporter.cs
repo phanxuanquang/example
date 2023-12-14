@@ -2,15 +2,13 @@
 using Autodesk.Navisworks.Api.Interop.ComApi;
 using Autodesk.Navisworks.Api.Plugins;
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using COMApi = Autodesk.Navisworks.Api.Interop.ComApi;
 using ComBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
 
 
-namespace Export3D
+namespace Model2OBJ
 {
-    [PluginAttribute("Test", "ADSK", DisplayName = "OBJ Exporter")]
+    [PluginAttribute("Model2OBJ", "ADSK", ToolTip = "Export model to .obj file", DisplayName = "Model2OBJ")]
     [AddInPluginAttribute(AddInLocation.AddIn)]
     public class Exporter : AddInPlugin
     {
@@ -41,7 +39,8 @@ namespace Export3D
                     }
                 }
             }
-            Mesh.instance.ExportTo();
+
+            Mesh.instance.Export();
             return 0;
         }
     }

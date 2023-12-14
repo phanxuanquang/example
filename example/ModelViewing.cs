@@ -1,22 +1,10 @@
-﻿using Autodesk.Navisworks.Api;
+﻿using System.Windows.Forms;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using ListView = System.Windows.Forms.ListView;
-
-namespace example
+namespace Viewer
 {
-    public partial class ShowForm : Form
+    public partial class ModelViewing : Form
     {
-        public ShowForm()
+        public ModelViewing()
         {
             InitializeComponent();
         }
@@ -30,7 +18,7 @@ namespace example
             }
         }
 
-        void LoadPropertiesOf(ModelNode node)
+        private void LoadPropertiesOf(ModelNode node)
         {
             foreach (var propertyCategory in node.modelItem.PropertyCategories)
             {
