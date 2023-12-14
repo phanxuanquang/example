@@ -28,37 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.treeView = new System.Windows.Forms.TreeView();
-            this.PropertiesTabs = new System.Windows.Forms.TabControl();
+            this.ModelHiariachyTree = new System.Windows.Forms.TreeView();
+            this.PropertyCategoryTabs = new System.Windows.Forms.TabControl();
             this.LoadButton = new System.Windows.Forms.Button();
             this.richTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // treeView
             // 
-            this.treeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.ModelHiariachyTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.treeView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.treeView.Location = new System.Drawing.Point(19, 17);
-            this.treeView.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.treeView.Name = "treeView";
-            this.treeView.Size = new System.Drawing.Size(766, 1332);
-            this.treeView.TabIndex = 0;
-            this.treeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseClick);
-            this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseDoubleClick);
+            this.ModelHiariachyTree.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ModelHiariachyTree.Location = new System.Drawing.Point(19, 17);
+            this.ModelHiariachyTree.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.ModelHiariachyTree.Name = "treeView";
+            this.ModelHiariachyTree.Size = new System.Drawing.Size(766, 1332);
+            this.ModelHiariachyTree.TabIndex = 0;
+            this.ModelHiariachyTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseClick);
             // 
             // PropertiesTabs
             // 
-            this.PropertiesTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.PropertyCategoryTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.PropertiesTabs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.PropertiesTabs.Location = new System.Drawing.Point(796, 940);
-            this.PropertiesTabs.Margin = new System.Windows.Forms.Padding(5, 4, 16, 4);
-            this.PropertiesTabs.Name = "PropertiesTabs";
-            this.PropertiesTabs.SelectedIndex = 0;
-            this.PropertiesTabs.Size = new System.Drawing.Size(1857, 593);
-            this.PropertiesTabs.TabIndex = 1;
+            this.PropertyCategoryTabs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.PropertyCategoryTabs.Location = new System.Drawing.Point(796, 940);
+            this.PropertyCategoryTabs.Margin = new System.Windows.Forms.Padding(5, 4, 16, 4);
+            this.PropertyCategoryTabs.Name = "PropertiesTabs";
+            this.PropertyCategoryTabs.SelectedIndex = 0;
+            this.PropertyCategoryTabs.Size = new System.Drawing.Size(1857, 593);
+            this.PropertyCategoryTabs.TabIndex = 1;
             // 
             // LoadButton
             // 
@@ -90,8 +89,8 @@
             this.ClientSize = new System.Drawing.Size(2672, 1550);
             this.Controls.Add(this.richTextBox);
             this.Controls.Add(this.LoadButton);
-            this.Controls.Add(this.PropertiesTabs);
-            this.Controls.Add(this.treeView);
+            this.Controls.Add(this.PropertyCategoryTabs);
+            this.Controls.Add(this.ModelHiariachyTree);
             this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.Name = "ShowForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -102,8 +101,8 @@
 
         #endregion
 
-        public System.Windows.Forms.TreeView treeView;
-        private System.Windows.Forms.TabControl PropertiesTabs;
+        public System.Windows.Forms.TreeView ModelHiariachyTree;
+        private System.Windows.Forms.TabControl PropertyCategoryTabs;
         private System.Windows.Forms.Button LoadButton;
         private System.Windows.Forms.RichTextBox richTextBox;
     }

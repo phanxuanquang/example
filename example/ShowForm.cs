@@ -23,40 +23,35 @@ namespace example
 
         private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is Node node)
+            if (e.Node is ModelNode node)
             {
-                PropertiesTabs.TabPages.Clear();
-                loadProperties(node);
+                PropertyCategoryTabs.TabPages.Clear();
+                LoadPropertiesOf(node);
             }
         }
 
-        void loadProperties(Node node)
+        void LoadPropertiesOf(ModelNode node)
         {
-            foreach (var properties in node.modelItem.PropertyCategories)
+            foreach (var propertyCategory in node.modelItem.PropertyCategories)
             {
-                TabPage propertyTab = new TabPage(properties.DisplayName);
+                TabPage propertyCategoryTab = new TabPage(propertyCategory.DisplayName);
 
-                DataGridView dataGridView = new DataGridView();
-                dataGridView.Dock = DockStyle.Fill;
-                dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                dataGridView.ReadOnly = true;
-                foreach (var property in properties.Properties)
+                DataGridView propertiesTable = new DataGridView();
+                propertiesTable.Dock = DockStyle.Fill;
+                propertiesTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                propertiesTable.ReadOnly = true;
+                foreach (var category in propertyCategory.Properties)
                 {
                     DataGridViewColumn newColumn = new DataGridViewTextBoxColumn();
-                    newColumn.HeaderText = property.DisplayName; // Set the header text for the new column
+                    newColumn.HeaderText = category.DisplayName; // Set the header text for the new column
 
-                    newColumn.Name = property.Name;
-                    dataGridView.Columns.Add(newColumn);
+                    newColumn.Name = category.Name;
+                    propertiesTable.Columns.Add(newColumn);
                 }
 
-                propertyTab.Controls.Add(dataGridView);
-                PropertiesTabs.TabPages.Add(propertyTab);
+                propertyCategoryTab.Controls.Add(propertiesTable);
+                PropertyCategoryTabs.TabPages.Add(propertyCategoryTab);
             }
-        }
-
-        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-
         }
     }
 }

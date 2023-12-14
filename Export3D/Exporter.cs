@@ -33,7 +33,7 @@ namespace Export3D
                         Autodesk.Navisworks.Api.Interop.ComApi.InwLTransform3f3 localToWorld = (Autodesk.Navisworks.Api.Interop.ComApi.InwLTransform3f3)(object)frag.GetLocalToWorldMatrix();
                         listener.coordinateStandard = localToWorld;
 
-                        frag.GenerateSimplePrimitives(nwEVertexProperty.eNORMAL, listener);
+                        frag.GenerateSimplePrimitives(nwEVertexProperty.eCOLOR, listener);
                     }
                     catch (Exception ex)
                     {
