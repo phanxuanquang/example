@@ -1,78 +1,32 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
-using System;
-using System.Data.SqlClient;
-using System.Collections.Generic;
-using Autodesk.Navisworks.Api;
+using System.Linq;
+using System.Net.NetworkInformation;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace Viewer
+namespace SQLiteExample
 {
-    partial class ModelViewing : Form
-    {
-        public List<ModelItem> models;
-        public ModelViewing()
-        {
-            InitializeComponent();
-            models = new List<ModelItem>();
-        }
-
-        private void TreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node is ModelNode node)
-            {
-                PropertyCategoryTabs.TabPages.Clear();
-                LoadPropertiesOf(node);
-            }
-        }
-
-        private void LoadPropertiesOf(ModelNode node)
-        {
-            foreach (var propertyCategory in node.modelItem.PropertyCategories)
-            {
-                TabPage propertyCategoryTab = new TabPage(propertyCategory.DisplayName);
-
-                DataGridView propertiesTable = new DataGridView();
-                propertiesTable.Dock = DockStyle.Fill;
-                propertiesTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                propertiesTable.ReadOnly = true;
-                foreach (var category in propertyCategory.Properties)
-                {
-                    DataGridViewColumn newColumn = new DataGridViewTextBoxColumn();
-                    newColumn.HeaderText = category.DisplayName; // Set the header text for the new column
-
-                    newColumn.Name = category.Name;
-                    propertiesTable.Columns.Add(newColumn);
-                }
-
-                propertyCategoryTab.Controls.Add(propertiesTable);
-                PropertyCategoryTabs.TabPages.Add(propertyCategoryTab);
-            }
-        }
-
-        private void ExportButton_Click(object sender, System.EventArgs e)
-        {
-            foreach (var model in models)
-            {
-                richTextBox.Text += model.DisplayName + "\n";
-            }
-            DatabaseExporter databaseExporter = new DatabaseExporter(models);
-        }  
-    }
-
+    /// <summary>
+    /// Export model data into a SQL database using SQLite
+    /// </summary>
     internal class DatabaseExporter
     {
         SQLiteConnection connection;
-        public List<ModelItem> items = new List<ModelItem>();
-        public DatabaseExporter(List<ModelItem> models)
+        public DatabaseExporter()
         {
-            items = models;
-            string databaseName = @"D:\C++\Internship\SQLite\model.db";
-            connection = new SQLiteConnection($"Data Source={databaseName}");
+            connection = new SQLiteConnection("DataSource=Model.db");
             try
             {
                 connection.Open();
-                CreateTablesFrom(@"D:\C++\Internship\example\example\bin\Debug\SQLite.sql");
+                //CreateTables("SQLite.sql");
+                for (int i = 0; i < 100; i++)
+                {
+                    InsertColor(IDGeneratedWithPrefix("COL"), GeneratedNumber(), GeneratedNumber(), GeneratedNumber());
+                }
             }
             catch (Exception ex)
             {
@@ -86,7 +40,7 @@ namespace Viewer
         /// <summary>
         /// Create tables from SQL script file.
         /// </summary>
-        private void CreateTablesFrom(string filePath)
+        private void CreateTables(string filePath)
         {
             try
             {
@@ -99,6 +53,13 @@ namespace Viewer
             {
                 MessageBox.Show(ex.Message, "Creating table failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void InsertColor(string ID, int Red, int Green, int Blue)
+        {
+            string sqlCommand = String.Format("INSERT INTO 'Color' ('ID', 'Red', 'Green', 'Blue') VALUES ('{0}', {1}, {2}, {3})", ID, Red, Green, Blue);
+            SQLiteCommand executer = new SQLiteCommand(sqlCommand, connection);
+            executer.ExecuteNonQuery();
         }
         /// <summary>
         /// Obtain the script from a .sql file and convert into string data type
@@ -150,7 +111,7 @@ namespace Viewer
 
             return prefix.ToUpper() + "-" + randomString;
         }
-
+       
         /// <summary>
         /// Generate a unique number in range [0:255]
         /// </summary>

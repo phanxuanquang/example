@@ -2,6 +2,8 @@
 using Autodesk.Navisworks.Api.DocumentParts;
 using Autodesk.Navisworks.Api.Plugins;
 using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Windows.Forms;
 
 namespace Viewer
@@ -10,6 +12,7 @@ namespace Viewer
 
     public class Handler : AddInPlugin
     {
+        List<ModelItem> modelNodes = new List<ModelItem>();
         public override int Execute(params string[] parameters)
         {
             try
@@ -18,7 +21,6 @@ namespace Viewer
                 DocumentModels models = doc.Models;
                 Model model = models.First;
                 ModelItem rootItem = doc.Models.First.RootItem;
-                //ModelItemEnumerableCollection modelItems = rootItem.DescendantsAndSelf;
 
                 TreeNode root = new TreeNode(rootItem.DisplayName);
 
@@ -26,6 +28,7 @@ namespace Viewer
 
                 ModelViewForm.ModelHiariachyTree.Nodes.Add(root);
                 LoadModelsToTreeView(rootItem, root);
+                ModelViewForm.models = modelNodes;
                 ModelViewForm.ShowDialog();
             }
             catch (Exception ex)
@@ -35,13 +38,15 @@ namespace Viewer
 
             return 0;
         }
+        
         private void LoadModelsToTreeView(ModelItem model, TreeNode treeNode)
         {
-            foreach (var modelItems in model.Children)
+            foreach (var modelItem in model.Children)
             {
-                TreeNode node = new ModelNode(modelItems.DisplayName, modelItems);
+                TreeNode node = new ModelNode(modelItem.DisplayName, modelItem);
+                modelNodes.Add(modelItem);
                 treeNode.Nodes.Add(node);
-                LoadModelsToTreeView(modelItems, node);
+                LoadModelsToTreeView(modelItem, node);
             }
         }
     }

@@ -6,11 +6,18 @@ namespace Model2OBJ
 {
     internal class CallbackGeomListener : COMApi.InwSimplePrimitivesCB
     {
+
         private Mesh mesh = new Mesh();
         public Autodesk.Navisworks.Api.Interop.ComApi.InwLTransform3f3 coordinateStandard;
         public void Line(COMApi.InwSimpleVertex v1, COMApi.InwSimpleVertex v2) { }
         public void Point(COMApi.InwSimpleVertex v1) { }
         public void SnapPoint(COMApi.InwSimpleVertex v1) { }
+        /// <summary>
+        /// Create a trianlge with vertexes v1, v2, and v3
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <param name="v3"></param>
         public void Triangle(COMApi.InwSimpleVertex v1, COMApi.InwSimpleVertex v2, COMApi.InwSimpleVertex v3)
         {
             Point3D getCoordinatesFrom(Array triangle)

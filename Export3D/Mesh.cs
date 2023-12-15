@@ -8,8 +8,17 @@ namespace Model2OBJ
 {
     internal class Mesh
     {
+        /// <summary>
+        /// Vertex list of the mesh
+        /// </summary>
         private List<Point3D> vertexes;
+        /// <summary>
+        /// Face index list of the mesh
+        /// </summary>
         private List<int> faceIndexes;
+        /// <summary>
+        /// This mesh
+        /// </summary>
         public static Mesh instance;
         public Mesh()
         {
@@ -17,6 +26,12 @@ namespace Model2OBJ
             faceIndexes = new List<int>();
             instance = this;
         }
+        /// <summary>
+        /// Add created created triangle to the mesh.
+        /// </summary>
+        /// <param name="x">1st vertex</param>
+        /// <param name="y">2nd vertex</param>
+        /// <param name="z">3nd vertex</param>
         public void AppendTriangleWithVertexes(Point3D x, Point3D y, Point3D z)
         {
             vertexes.Add(x);
@@ -27,6 +42,9 @@ namespace Model2OBJ
             faceIndexes.Add(vertexes.Count - 2);
             faceIndexes.Add(vertexes.Count - 1);
         }
+        /// <summary>
+        /// Export all the mest to a .obj file to the seleted location
+        /// </summary>
         public void Export()
         {
             try
