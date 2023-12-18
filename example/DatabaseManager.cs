@@ -130,6 +130,20 @@ namespace ModelViewer
             }
         }
 
+        public void Insert(MModel model, MPropertyCategory propertyCategory, MProperty property)
+        {
+            string insertQuery = "INSERT INTO HasProperty (ModelID, PropertyCategoryID, PropertyID) VALUES (@ModelID, @PropertyCategoryID, @PropertyID)";
+            using (SQLiteCommand executer = new SQLiteCommand(insertQuery, connection))
+            {
+                executer.Parameters.AddWithValue("@ModelID", model.id);
+                executer.Parameters.AddWithValue("@PropertyCategoryID", propertyCategory.id);
+                executer.Parameters.AddWithValue("@PropertyID", property.id);
+
+                Execute(executer, "Cannot insert bridge table");
+            }
+        }
+
+
         public void Insert(MModel mModel)
         {
             string insertQuery = "INSERT INTO Model (ID, ParentModelID, DisplayName, GeometryID) VALUES (@ID, @ParentModelID, @DisplayName, @GeometryID)";

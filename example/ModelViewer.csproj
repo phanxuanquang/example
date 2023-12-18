@@ -101,8 +101,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>set "processName=Roamer.exe"
+
+tasklist /FI "IMAGENAME eq %25processName%25" 2&gt;NUL | find /I "%25processName%25" &gt;NUL &amp;&amp; taskkill /F /IM "%25processName%25"</PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -114,4 +115,16 @@
   </Target>
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>set "sourceFile=D:\C++\Internship\example\example\bin\Debug\Model Viewer.dll"
+set "destinationFolder=C:\Program Files\Autodesk\Navisworks Manage 2023\Plugins\Model Viewer"
+set "filePath=D:\C++\Internship\SQLite\model2.db"
+
+if exist "%25filePath%25" (
+    del "%25filePath%25"
+) 
+
+copy /Y "%25sourceFile%25" "%25destinationFolder%25"
+start "" "D:\C++\Internship\PluginExample\PluginExample\bin\Debug\U01_HasPMI.nwd"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

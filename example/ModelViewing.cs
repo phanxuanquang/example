@@ -61,7 +61,7 @@ namespace Viewer
         {
             DatabaseManager databaseExporter = new DatabaseManager(models);
             databaseExporter.connection.Open();
-            using (var trans = databaseExporter.connection.BeginTransaction())
+            using (var transaction = databaseExporter.connection.BeginTransaction())
             {
                 int propertyCategoryID = 0;
                 int propertyID = 0;
@@ -94,11 +94,13 @@ namespace Viewer
                             propertyID++;
                             MProperty mProperty = new MProperty(propertyID, property.DisplayName, property.Value.ToString());
                             databaseExporter.Insert(mProperty);
+
+                            databaseExporter.Insert(mModel, mPropertyCategory, mProperty);
                         }
                     }
                 }
 
-                trans.Commit();
+                transaction.Commit();
             }
 
 
