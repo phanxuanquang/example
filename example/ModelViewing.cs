@@ -1,15 +1,12 @@
-﻿using System.Windows.Forms;
-using System.Data.SQLite;
-using System.IO;
-using System;
-using System.Data.SqlClient;
-using System.Collections.Generic;
-using Autodesk.Navisworks.Api;
+﻿using Autodesk.Navisworks.Api;
 using ModelViewer;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Viewer
 {
-    partial class ModelViewing : Form
+    internal partial class ModelViewing : Form
     {
         public List<ModelItem> models;
         public ModelViewing()
@@ -51,13 +48,66 @@ namespace Viewer
             }
         }
 
+        private int getParentID(int currentID, List<ModelItem> models)
+        {
+            if (models.Contains(models[currentID].Parent))
+            {
+                return models.IndexOf(models[currentID].Parent);
+            }
+            return 0;
+        }
+
         private void ExportButton_Click(object sender, System.EventArgs e)
         {
-            foreach (var model in models)
+            DatabaseManager databaseExporter = new DatabaseManager(models);
+            databaseExporter.connection.Open();
+            using (var trans = databaseExporter.connection.BeginTransaction())
             {
-                richTextBox.Text += model.DisplayName + "\n";
+                int propertyCategoryID = 0;
+                int propertyID = 0;
+
+                for (int i = 0; i < models.Count; i++)
+                {
+                    var model = models[i];
+                    MGeometry mGeometry = null;
+
+                    if (model.HasGeometry)
+                    {
+                        MColor mColor = new MColor(i, model.Geometry.ActiveColor.R, model.Geometry.ActiveColor.G, model.Geometry.ActiveColor.B);
+                        databaseExporter.Insert(mColor);
+
+                        mGeometry = new MGeometry(i, model.Transform, mColor, model.Geometry.ActiveTransparency);
+                        databaseExporter.Insert(mGeometry);
+                    }
+
+                    MModel mModel = new MModel(i, getParentID(i, models), model.DisplayName, mGeometry);
+                    databaseExporter.Insert(mModel);
+
+                    foreach (var category in model.PropertyCategories)
+                    {
+                        propertyCategoryID++;
+                        MPropertyCategory mPropertyCategory = new MPropertyCategory(propertyCategoryID, category.DisplayName);
+                        databaseExporter.Insert(mPropertyCategory);
+
+                        foreach (var property in category.Properties)
+                        {
+                            propertyID++;
+                            MProperty mProperty = new MProperty(propertyID, property.DisplayName, property.Value.ToString());
+                            databaseExporter.Insert(mProperty);
+                        }
+                    }
+                }
+
+                trans.Commit();
             }
-            DatabaseExporter databaseExporter = new DatabaseExporter(models);
-        }  
+
+
+            databaseExporter.connection.Close();
+        }
+        private int GeneratedNumber()
+        {
+            Random random = random = new Random();
+            return random.Next(256);
+        }
     }
 }

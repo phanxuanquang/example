@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SQLiteExample
@@ -15,7 +11,7 @@ namespace SQLiteExample
     /// </summary>
     internal class DatabaseExporter
     {
-        SQLiteConnection connection;
+        private SQLiteConnection connection;
         public DatabaseExporter()
         {
             connection = new SQLiteConnection("DataSource=Model.db");
@@ -57,9 +53,21 @@ namespace SQLiteExample
 
         private void InsertColor(string ID, int Red, int Green, int Blue)
         {
-            string sqlCommand = String.Format("INSERT INTO 'Color' ('ID', 'Red', 'Green', 'Blue') VALUES ('{0}', {1}, {2}, {3})", ID, Red, Green, Blue);
-            SQLiteCommand executer = new SQLiteCommand(sqlCommand, connection);
-            executer.ExecuteNonQuery();
+            try
+            {
+                connection.Open();
+                string sqlCommand = String.Format("INSERT INTO 'Color' ('ID', 'Red', 'Green', 'Blue') VALUES ('{0}', {1}, {2}, {3})", ID, Red, Green, Blue);
+                SQLiteCommand executer = new SQLiteCommand(sqlCommand, connection);
+                executer.ExecuteNonQuery();
+            }
+            catch
+            {
+                return;
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
         /// <summary>
         /// Obtain the script from a .sql file and convert into string data type
@@ -85,15 +93,15 @@ namespace SQLiteExample
             }
         }
 
-        static Random random = new Random();
-        static HashSet<string> generatedStrings = new HashSet<string>();
+        private static Random random = new Random();
+        private static HashSet<string> generatedStrings = new HashSet<string>();
 
         /// <summary>
         /// Generate a unique ID with specific prefix
         /// </summary>
         /// <param name="prefix">The prefix which is reccommended with less than 5 characters</param>
         /// <returns></returns>
-        string IDGeneratedWithPrefix(string prefix)
+        private string IDGeneratedWithPrefix(string prefix)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             char[] stringChars = new char[16 - prefix.Length - 1];
@@ -111,14 +119,14 @@ namespace SQLiteExample
 
             return prefix.ToUpper() + "-" + randomString;
         }
-       
+
         /// <summary>
         /// Generate a unique number in range [0:255]
         /// </summary>
         /// <returns></returns>
-        int GeneratedNumber()
+        private int GeneratedNumber()
         {
-            random = new Random();
+            Random random = random = new Random();
             return random.Next(256);
         }
     }

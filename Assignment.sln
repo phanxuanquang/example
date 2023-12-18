@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelViewer", "example\Mode
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelExporter", "Export3D\ModelExporter.csproj", "{16BB157F-2029-4C67-8E60-3527EA1CBC1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteExample", "SQLiteExample\SQLiteExample.csproj", "{DA481BDB-F299-4DB8-9549-B83F08FF8942}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{16BB157F-2029-4C67-8E60-3527EA1CBC1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16BB157F-2029-4C67-8E60-3527EA1CBC1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16BB157F-2029-4C67-8E60-3527EA1CBC1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA481BDB-F299-4DB8-9549-B83F08FF8942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA481BDB-F299-4DB8-9549-B83F08FF8942}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA481BDB-F299-4DB8-9549-B83F08FF8942}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA481BDB-F299-4DB8-9549-B83F08FF8942}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

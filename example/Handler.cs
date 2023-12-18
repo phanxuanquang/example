@@ -2,17 +2,15 @@
 using Autodesk.Navisworks.Api.DocumentParts;
 using Autodesk.Navisworks.Api.Plugins;
 using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Windows.Forms;
 
 namespace Viewer
 {
     [PluginAttribute("Model Viewer", "ADSK", ToolTip = "View all properties of active model", DisplayName = "Model Viewer")]
-
-    public class Handler : AddInPlugin
+    internal partial class Handler : AddInPlugin
     {
-        List<ModelItem> modelNodes = new List<ModelItem>();
+        //private List<ModelItem> modelNodes = new List<ModelItem>();
+        private ModelViewing ModelViewForm;
         public override int Execute(params string[] parameters)
         {
             try
@@ -24,11 +22,11 @@ namespace Viewer
 
                 TreeNode root = new TreeNode(rootItem.DisplayName);
 
-                var ModelViewForm = new ModelViewing();
+                ModelViewForm = new ModelViewing();
 
                 ModelViewForm.ModelHiariachyTree.Nodes.Add(root);
                 LoadModelsToTreeView(rootItem, root);
-                ModelViewForm.models = modelNodes;
+                //ModelViewForm.models.AddRange(modelNodes);
                 ModelViewForm.ShowDialog();
             }
             catch (Exception ex)
@@ -38,13 +36,15 @@ namespace Viewer
 
             return 0;
         }
-        
+
+
         private void LoadModelsToTreeView(ModelItem model, TreeNode treeNode)
         {
+            //ModelViewForm.models.Add(model);
             foreach (var modelItem in model.Children)
             {
+                ModelViewForm.models.Add(modelItem);
                 TreeNode node = new ModelNode(modelItem.DisplayName, modelItem);
-                modelNodes.Add(modelItem);
                 treeNode.Nodes.Add(node);
                 LoadModelsToTreeView(modelItem, node);
             }
