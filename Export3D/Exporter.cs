@@ -12,11 +12,6 @@ namespace Model2OBJ
     [AddInPluginAttribute(AddInLocation.AddIn)]
     public class Exporter : AddInPlugin
     {
-        class Geo
-        {
-            int id;
-            ModelGeometry geom;
-        }
         public override int Execute(params string[] parameters)
         {
             Autodesk.Navisworks.Api.DocumentParts.DocumentCurrentSelection curSel = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection;
@@ -45,7 +40,7 @@ namespace Model2OBJ
                 }
             }
 
-            Mesh.instance.Export2DB();
+            Mesh.instance.Export();
             return 0;
         }
     }

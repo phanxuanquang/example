@@ -1,7 +1,6 @@
 ﻿using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Interop.ComApi;
 using ModelViewer.Modal;
-using System.Windows.Forms;
 using ComBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
 
 namespace ModelViewer
@@ -29,7 +28,6 @@ namespace ModelViewer
                 }
                 return listener.mesh;
             }
-            MessageBox.Show("Get Mess Failed");
             return null;
         }
 

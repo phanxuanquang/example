@@ -1,11 +1,7 @@
 ﻿using Autodesk.Navisworks.Api;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Data.Entity.Spatial;
-using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace Model2OBJ
@@ -84,6 +80,6 @@ namespace Model2OBJ
             }
         }
 
-        
+
     }
 }

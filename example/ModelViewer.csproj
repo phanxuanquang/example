@@ -81,14 +81,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseManager.cs" />
-    <Compile Include="Modal\CallbackGeomListener.cs" />
-    <Compile Include="Modal\Mesh.cs" />
-    <Compile Include="Modal\MProperty.cs" />
-    <Compile Include="Modal\MColor.cs" />
+    <Compile Include="Entities\CallbackGeomListener.cs" />
+    <Compile Include="Entities\Mesh.cs" />
+    <Compile Include="Entities\MProperty.cs" />
+    <Compile Include="Entities\MColor.cs" />
     <Compile Include="Handler.cs" />
-    <Compile Include="Modal\MGeometry.cs" />
-    <Compile Include="Modal\MHasProperty.cs" />
-    <Compile Include="Modal\MModel.cs" />
+    <Compile Include="Entities\MGeometry.cs" />
+    <Compile Include="Entities\MHasProperty.cs" />
+    <Compile Include="Entities\MModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModelViewing.cs">
       <SubType>Form</SubType>
@@ -96,7 +96,7 @@
     <Compile Include="ModelViewing.Designer.cs">
       <DependentUpon>ModelViewing.cs</DependentUpon>
     </Compile>
-    <Compile Include="Modal\MPropertyCategory.cs" />
+    <Compile Include="Entities\MPropertyCategory.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ModelViewing.resx">
@@ -124,7 +124,7 @@ tasklist /FI "IMAGENAME eq %25processName%25" 2&gt;NUL | find /I "%25processName
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>set "sourceFile=D:\C++\Internship\example\example\bin\Debug\Model Viewer.dll"
+    <PostBuildEvent>set "sourceFile=Model Viewer.dll"
 set "destinationFolder=C:\Program Files\Autodesk\Navisworks Manage 2023\Plugins\Model Viewer"
 set "filePath=D:\C++\Internship\SQLite\model2.db"
 

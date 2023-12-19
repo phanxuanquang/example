@@ -1,6 +1,5 @@
 ﻿using Autodesk.Navisworks.Api;
 using ModelViewer;
-using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -59,8 +58,9 @@ namespace Viewer
 
         private void ExportButton_Click(object sender, System.EventArgs e)
         {
-            DatabaseManager databaseExporter = new DatabaseManager(models);
+            DatabaseManager databaseExporter = new DatabaseManager();
             databaseExporter.connection.Open();
+
             using (var transaction = databaseExporter.connection.BeginTransaction())
             {
                 int propertyCategoryID = 0;
@@ -102,12 +102,8 @@ namespace Viewer
 
                 transaction.Commit();
             }
+
             databaseExporter.connection.Close();
-        }
-        private int GeneratedNumber()
-        {
-            Random random = random = new Random();
-            return random.Next(256);
         }
     }
 }
