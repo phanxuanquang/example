@@ -1,4 +1,6 @@
 ﻿using Autodesk.Navisworks.Api;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -91,17 +93,25 @@ namespace ModelViewer
                 Execute(executer, "Cannot insert colors!");
             }
         }
+
+        [Obsolete]
         public void Insert(MGeometry geometry)
         {
-            string insertQuery = "INSERT INTO Geometry (ID, xTrans, yTrans, zTrans, ColorID, Transparency) VALUES (@ID, @xTrans, @yTrans, @zTrans, @ColorID, @Transparency)";
+            string insertQuery = "INSERT INTO Geometry (ID, ColorID, Transparency, Mesh) VALUES (@ID, @ColorID, @Transparency, @Mesh)";
             using (SQLiteCommand executer = new SQLiteCommand(insertQuery, connection))
             {
                 executer.Parameters.AddWithValue("@ID", geometry.id);
-                executer.Parameters.AddWithValue("@xTrans", geometry.translation.X);
-                executer.Parameters.AddWithValue("@yTrans", geometry.translation.Y);
-                executer.Parameters.AddWithValue("@zTrans", geometry.translation.Z);
                 executer.Parameters.AddWithValue("@ColorID", geometry.color.id);
                 executer.Parameters.AddWithValue("@Transparency", geometry.transparency);
+                //executer.Parameters.AddWithValue("@Mesh", JsonConvert.SerializeObject(geometry.mesh));
+
+                MemoryStream streamer = new MemoryStream();
+                using (BsonWriter writer = new BsonWriter(streamer))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(writer, geometry.mesh);
+                }
+                executer.Parameters.AddWithValue("@Mesh", Convert.ToBase64String(streamer.ToArray()));
 
                 Execute(executer, "Cannot insert geometry");
             }
@@ -129,21 +139,6 @@ namespace ModelViewer
                 Execute(executer, "Cannot insert property");
             }
         }
-
-        public void Insert(MModel model, MPropertyCategory propertyCategory, MProperty property)
-        {
-            string insertQuery = "INSERT INTO HasProperty (ModelID, PropertyCategoryID, PropertyID) VALUES (@ModelID, @PropertyCategoryID, @PropertyID)";
-            using (SQLiteCommand executer = new SQLiteCommand(insertQuery, connection))
-            {
-                executer.Parameters.AddWithValue("@ModelID", model.id);
-                executer.Parameters.AddWithValue("@PropertyCategoryID", propertyCategory.id);
-                executer.Parameters.AddWithValue("@PropertyID", property.id);
-
-                Execute(executer, "Cannot insert bridge table");
-            }
-        }
-
-
         public void Insert(MModel mModel)
         {
             string insertQuery = "INSERT INTO Model (ID, ParentModelID, DisplayName, GeometryID) VALUES (@ID, @ParentModelID, @DisplayName, @GeometryID)";
@@ -161,8 +156,19 @@ namespace ModelViewer
                     executer.Parameters.AddWithValue("@GeometryID", null);
                 }
 
-
                 Execute(executer, "Cannot insert model");
+            }
+        }
+        public void Insert(MModel model, MPropertyCategory propertyCategory, MProperty property)
+        {
+            string insertQuery = "INSERT INTO HasProperty (ModelID, PropertyCategoryID, PropertyID) VALUES (@ModelID, @PropertyCategoryID, @PropertyID)";
+            using (SQLiteCommand executer = new SQLiteCommand(insertQuery, connection))
+            {
+                executer.Parameters.AddWithValue("@ModelID", model.id);
+                executer.Parameters.AddWithValue("@PropertyCategoryID", propertyCategory.id);
+                executer.Parameters.AddWithValue("@PropertyID", property.id);
+
+                Execute(executer, "Cannot insert bridge table");
             }
         }
         #endregion

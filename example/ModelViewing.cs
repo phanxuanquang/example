@@ -71,12 +71,12 @@ namespace Viewer
                     var model = models[i];
                     MGeometry mGeometry = null;
 
-                    if (model.HasGeometry)
+                    if (model.Geometry != null)
                     {
                         MColor mColor = new MColor(i, model.Geometry.ActiveColor.R, model.Geometry.ActiveColor.G, model.Geometry.ActiveColor.B);
                         databaseExporter.Insert(mColor);
 
-                        mGeometry = new MGeometry(i, model.Transform, mColor, model.Geometry.ActiveTransparency);
+                        mGeometry = new MGeometry(i, mColor, model.Geometry.ActiveTransparency, model);
                         databaseExporter.Insert(mGeometry);
                     }
 
@@ -102,8 +102,6 @@ namespace Viewer
 
                 transaction.Commit();
             }
-
-
             databaseExporter.connection.Close();
         }
         private int GeneratedNumber()
