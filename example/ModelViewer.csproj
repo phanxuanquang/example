@@ -80,7 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabaseManager.cs" />
+    <Compile Include="SQLiteDatabaseManager.cs" />
     <Compile Include="Entities\CallbackGeomListener.cs" />
     <Compile Include="Entities\Mesh.cs" />
     <Compile Include="Entities\MProperty.cs" />

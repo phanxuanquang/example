@@ -7,10 +7,10 @@ using System.Windows.Forms;
 
 namespace ModelViewer
 {
-    internal class DatabaseManager
+    internal class SQLiteDatabaseManager
     {
         public SQLiteConnection connection;
-        public DatabaseManager()
+        public SQLiteDatabaseManager()
         {
             string databaseName = @"D:\C++\Internship\SQLite\ModelDatabase.db";
             connection = new SQLiteConnection($"Data Source={databaseName}");
