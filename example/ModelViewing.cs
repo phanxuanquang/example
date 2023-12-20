@@ -58,7 +58,7 @@ namespace Viewer
 
         private void ExportButton_Click(object sender, System.EventArgs e)
         {
-            SQLiteDatabaseManager databaseExporter = new SQLiteDatabaseManager();
+            SQLiteDatabase databaseExporter = new SQLiteDatabase(@"D:\C++\Internship\SQLite\ModelDatabase.db");
             databaseExporter.connection.Open();
 
             using (var transaction = databaseExporter.connection.BeginTransaction())

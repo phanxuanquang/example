@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using Npgsql;
 using System;
 using System.Data.SQLite;
 using System.IO;
@@ -7,13 +8,12 @@ using System.Windows.Forms;
 
 namespace ModelViewer
 {
-    internal class SQLiteDatabaseManager
+    internal class SQLiteDatabase
     {
-        public SQLiteConnection connection;
-        public SQLiteDatabaseManager()
+        public SQLiteConnection connection { get; set; }
+        public SQLiteDatabase(string dataSource)
         {
-            string databaseName = @"D:\C++\Internship\SQLite\ModelDatabase.db";
-            connection = new SQLiteConnection($"Data Source={databaseName}");
+            connection = new SQLiteConnection($"Data Source={dataSource}");
             try
             {
                 connection.Open();
@@ -34,14 +34,14 @@ namespace ModelViewer
         /// </summary>
         private void CreateTablesFrom(string filePath)
         {
-            try
+            string sqlScript = GetScriptFrom(filePath);
+
+            if (!string.IsNullOrEmpty(sqlScript))
             {
-                SQLiteCommand executer = new SQLiteCommand(GetScriptFrom(filePath), connection);
-                executer.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Creating table failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                using (var executer = new SQLiteCommand(sqlScript, connection))
+                {
+                    Execute(executer, "Creating table failed");
+                }
             }
         }
 
