@@ -26,7 +26,6 @@ namespace Viewer
 
                 ModelViewForm.ModelHiariachyTree.Nodes.Add(root);
                 LoadModelsToTreeView(rootItem, root);
-                //ModelViewForm.models.AddRange(modelNodes);
                 ModelViewForm.ShowDialog();
             }
             catch (Exception ex)
@@ -40,7 +39,6 @@ namespace Viewer
 
         private void LoadModelsToTreeView(ModelItem model, TreeNode treeNode)
         {
-            //ModelViewForm.models.Add(model);
             foreach (var modelItem in model.Children)
             {
                 ModelViewForm.models.Add(modelItem);

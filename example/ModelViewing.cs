@@ -14,15 +14,6 @@ namespace Viewer
             models = new List<ModelItem>();
         }
 
-        private void TreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node is ModelNode node)
-            {
-                PropertyCategoryTabs.TabPages.Clear();
-                LoadPropertiesOf(node);
-            }
-        }
-
         private void LoadPropertiesOf(ModelNode node)
         {
             foreach (var propertyCategory in node.modelItem.PropertyCategories)
@@ -43,7 +34,6 @@ namespace Viewer
                 }
 
                 propertyCategoryTab.Controls.Add(propertiesTable);
-                PropertyCategoryTabs.TabPages.Add(propertyCategoryTab);
             }
         }
 
@@ -56,9 +46,22 @@ namespace Viewer
             return 0;
         }
 
+        [System.Obsolete]
         private void ExportButton_Click(object sender, System.EventArgs e)
         {
             SQLiteDatabase databaseExporter = new SQLiteDatabase(@"D:\C++\Internship\SQLite\ModelDatabase.db");
+            Export2Database(databaseExporter);
+        }
+
+        [System.Obsolete]
+        private void Export2PostGISButton_Click(object sender, System.EventArgs e)
+        {
+            PostGISDatabase databaseExporter = new PostGISDatabase("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=137925;");
+            //Export2Database(databaseExporter);
+        }
+
+        private void Export2Database(dynamic databaseExporter)
+        {
             databaseExporter.connection.Open();
 
             using (var transaction = databaseExporter.connection.BeginTransaction())
@@ -92,7 +95,7 @@ namespace Viewer
                         foreach (var property in category.Properties)
                         {
                             propertyID++;
-                            MProperty mProperty = new MProperty(propertyID, property.DisplayName, property.Value.ToString());
+                            MProperty mProperty = new MProperty(propertyID, property.DisplayName, property.Value.ToString().Replace(":","_"));
                             databaseExporter.Insert(mProperty);
 
                             databaseExporter.Insert(mModel, mPropertyCategory, mProperty);

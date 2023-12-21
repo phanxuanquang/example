@@ -17,7 +17,7 @@ namespace ModelViewer
             try
             {
                 connection.Open();
-                CreateTablesFrom("SQLite.sql");
+                CreateTablesFrom(@"D:\C++\Internship\example\example\bin\Debug\SQLite.sql");
             }
             catch (Exception ex)
             {
@@ -69,7 +69,6 @@ namespace ModelViewer
         }
 
         #region Insert Data
-
         [Obsolete]
         public void Insert(MGeometry geometry)
         {
@@ -79,15 +78,15 @@ namespace ModelViewer
                 executer.Parameters.AddWithValue("@ID", geometry.id);
                 executer.Parameters.AddWithValue("@ColorID", geometry.color.id);
                 executer.Parameters.AddWithValue("@Transparency", geometry.transparency);
-                //executer.Parameters.AddWithValue("@Mesh", JsonConvert.SerializeObject(geometry.mesh));
+                executer.Parameters.AddWithValue("@Mesh", JsonConvert.SerializeObject(geometry.mesh));
 
-                MemoryStream streamer = new MemoryStream();
-                using (BsonWriter writer = new BsonWriter(streamer))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Serialize(writer, geometry.mesh);
-                }
-                executer.Parameters.AddWithValue("@Mesh", Convert.ToBase64String(streamer.ToArray()));
+                //MemoryStream streamer = new MemoryStream();
+                //using (BsonWriter writer = new BsonWriter(streamer))
+                //{
+                //    JsonSerializer serializer = new JsonSerializer();
+                //    serializer.Serialize(writer, geometry.mesh);
+                //}
+                //executer.Parameters.AddWithValue("@Mesh", Convert.ToBase64String(streamer.ToArray()));
 
                 Execute(executer, "Cannot insert geometry");
             }
