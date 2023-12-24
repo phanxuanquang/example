@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
 using Npgsql;
 using System;
-using System.Data.SQLite;
 using System.IO;
 using System.Windows.Forms;
 
@@ -14,11 +12,12 @@ namespace ModelViewer
 
         public PostGISDatabase(string connectionString)
         {
-            connection = new NpgsqlConnection(connectionString);
+            
             try
             {
-                connection.Open();
-                CreateTablesFrom("SQLite.sql");
+                connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=pol;Username=postgres;Password=137925;");
+                //connection.Open();
+                //CreateTablesFrom("SQLite.sql");
             }
             catch (Exception ex)
             {
@@ -26,7 +25,7 @@ namespace ModelViewer
             }
             finally
             {
-                connection.Close();
+                //connection.Close();
             }
         }
 

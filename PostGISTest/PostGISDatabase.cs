@@ -1,14 +1,9 @@
-﻿using Npgsql;
+﻿using Newtonsoft.Json;
+using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Data.Entity.Spatial;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
 
 namespace PostGISTest
@@ -36,7 +31,7 @@ namespace PostGISTest
         private void CreateTablesFrom(string filePath)
         {
             string GetScript()
-           {
+            {
                 try
                 {
                     if (!File.Exists(filePath))
@@ -104,8 +99,39 @@ namespace PostGISTest
 
                 transaction.Commit();
             }
-            
+
             connection.Close();
+        }
+
+        public List<GeometryMesh> GetMeshes()
+        {
+            List<GeometryMesh> meshes = new List<GeometryMesh>();
+            connection.Open();
+
+            try
+            {
+                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM geometry", connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = Convert.ToInt32(reader["id"]);
+                            Mesh mesh = JsonConvert.DeserializeObject<Mesh>(reader["mesh"].ToString());
+
+                            GeometryMesh geometryMesh = new GeometryMesh(id, mesh);
+                            meshes.Add(geometryMesh);
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error while getting meshes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            connection.Close();
+            return meshes;
         }
     }
 }

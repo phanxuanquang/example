@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-using Npgsql;
 using System;
 using System.Data.SQLite;
 using System.IO;
@@ -78,7 +76,15 @@ namespace ModelViewer
                 executer.Parameters.AddWithValue("@ID", geometry.id);
                 executer.Parameters.AddWithValue("@ColorID", geometry.color.id);
                 executer.Parameters.AddWithValue("@Transparency", geometry.transparency);
-                executer.Parameters.AddWithValue("@Mesh", JsonConvert.SerializeObject(geometry.mesh));
+                
+                if (geometry.mesh.vertexes.Count < 1 || geometry.mesh.faceIndexes.Count < 1)
+                {
+                    executer.Parameters.AddWithValue("@Mesh", null);
+                }
+                else
+                {
+                    executer.Parameters.AddWithValue("@Mesh", JsonConvert.SerializeObject(geometry.mesh));
+                }
 
                 //MemoryStream streamer = new MemoryStream();
                 //using (BsonWriter writer = new BsonWriter(streamer))

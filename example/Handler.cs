@@ -2,6 +2,9 @@
 using Autodesk.Navisworks.Api.DocumentParts;
 using Autodesk.Navisworks.Api.Plugins;
 using System;
+using System.Dynamic;
+using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Viewer
@@ -12,6 +15,25 @@ namespace Viewer
         //private List<ModelItem> modelNodes = new List<ModelItem>();
         private ModelViewing ModelViewForm;
         public override int Execute(params string[] parameters)
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+            return DoExecute(parameters);
+        }
+
+        private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+        {            
+            var assemblyName = args.Name;
+            if (assemblyName.IndexOf(",") >= 0)
+            {
+                assemblyName = assemblyName.Substring(0, assemblyName.IndexOf(","));
+            }
+            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var path = Path.Combine(currentFolder, assemblyName + ".dll");
+            return Assembly.Load(path);
+        }
+
+        private int DoExecute(string[] parameters)
         {
             try
             {
@@ -32,10 +54,8 @@ namespace Viewer
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
             return 0;
         }
-
 
         private void LoadModelsToTreeView(ModelItem model, TreeNode treeNode)
         {
