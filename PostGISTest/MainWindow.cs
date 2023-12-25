@@ -1,14 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity.Spatial;
 using System.Data.SQLite;
 using System.Windows.Forms;
 
 namespace PostGISTest
 {
-
     public partial class TestForm : Form
     {
         public TestForm()
@@ -39,6 +36,14 @@ namespace PostGISTest
                 try
                 {
                     postGISDatabase.InsertDataFrom(getExtractedTables(SQLitePath_Box.Text));
+                    List<GeometryMesh> meshes = postGISDatabase.GetMeshes();
+                    foreach (GeometryMesh mesh in meshes)
+                    {
+                        if (mesh.mesh != null)
+                        {
+                            postGISDatabase.InsertMeshFrom(mesh.mesh, mesh.id);
+                        }
+                    }
                     MessageBox.Show("Inserting data completely", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -51,8 +56,6 @@ namespace PostGISTest
                 MessageBox.Show("Please input credential of the PostGIS database and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 Database_Box.Focus();
             }
-
-            
         }
 
         private List<Table> getExtractedTables(string dataSource = @"D:\C++\Internship\SQLite\ModelDatabase.db")
@@ -105,24 +108,6 @@ namespace PostGISTest
 
                 return tables;
 
-            }
-        }
-
-        private void TestButton_Click(object sender, EventArgs e)
-        {
-            var connectionString = String.Format("Host={0};Port={1};Database={2};Username={3};Password={4}", Server_Box.Text, Port_Box.Text, Database_Box.Text, Username_Box.Text, Password_Box.Text);
-            PostGISDatabase postGISDatabase = new PostGISDatabase(connectionString);
-            try
-            {
-                List<GeometryMesh> meshes = postGISDatabase.GetMeshes();
-                foreach (GeometryMesh mesh in meshes)
-                {
-                    richTextBox.Text += JsonConvert.SerializeObject(mesh.mesh) + "\n";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

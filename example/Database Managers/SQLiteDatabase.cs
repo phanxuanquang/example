@@ -70,7 +70,7 @@ namespace ModelViewer
         [Obsolete]
         public void Insert(MGeometry geometry)
         {
-            string command = "INSERT INTO Geometry (ID, ColorID, Transparency, Mesh) VALUES (@ID, @ColorID, @Transparency, @Mesh)";
+            string command = "INSERT INTO MGeometry (ID, ColorID, Transparency, Mesh) VALUES (@ID, @ColorID, @Transparency, @Mesh)";
             using (SQLiteCommand executer = new SQLiteCommand(command, connection))
             {
                 executer.Parameters.AddWithValue("@ID", geometry.id);
@@ -135,7 +135,7 @@ namespace ModelViewer
         }
         public void Insert(MModel mModel)
         {
-            string command = "INSERT INTO Model (ID, ParentModelID, DisplayName, GeometryID) VALUES (@ID, @ParentModelID, @DisplayName, @GeometryID)";
+            string command = "INSERT INTO Model (ID, ParentModelID, DisplayName, MGeometryID) VALUES (@ID, @ParentModelID, @DisplayName, @MGeometryID)";
             using (SQLiteCommand executer = new SQLiteCommand(command, connection))
             {
                 executer.Parameters.AddWithValue("@ID", mModel.id);
@@ -144,11 +144,11 @@ namespace ModelViewer
 
                 if (mModel.geometry != null)
                 {
-                    executer.Parameters.AddWithValue("@GeometryID", mModel.geometry.id);
+                    executer.Parameters.AddWithValue("@MGeometryID", mModel.geometry.id);
                 }
                 else
                 {
-                    executer.Parameters.AddWithValue("@GeometryID", null);
+                    executer.Parameters.AddWithValue("@MGeometryID", null);
                 }
 
                 Execute(executer, "Cannot insert model");

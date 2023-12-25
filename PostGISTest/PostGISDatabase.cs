@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json.Serialization;
 using System.Windows.Forms;
 
 namespace PostGISTest
@@ -21,7 +21,7 @@ namespace PostGISTest
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Cannot create tables", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -90,7 +90,7 @@ namespace PostGISTest
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(cmd.CommandText + "\n" + ex.Message);
+                                MessageBox.Show(ex.Message, "Error while inserting data", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
                         }
@@ -103,6 +103,50 @@ namespace PostGISTest
             connection.Close();
         }
 
+        public void InsertMeshFrom(Mesh mesh, int id)
+        {
+            var jsonData = JsonConvert.SerializeObject(mesh);
+            JObject jsonObject = JObject.Parse(jsonData);
+            JArray vertices = (JArray)jsonObject["vertexes"];
+            JArray faceIndexes = (JArray)jsonObject["faceIndexes"];
+
+            List<string> vertexStrings = new List<string>();
+            foreach (var vertex in vertices)
+            {
+                vertexStrings.Add($"{vertex["x"]} {vertex["y"]} {vertex["z"]}");
+            }
+
+            List<string> fullVertexString = new List<string>();
+            foreach (int index in faceIndexes)
+            {
+                fullVertexString.Add(vertexStrings[index]);
+            }
+            fullVertexString.Add(vertexStrings[0]);
+            try
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    string polygonString = $"POLYGON Z(({String.Join(",", fullVertexString)}))";
+                    string sql = $"UPDATE MGeometry SET Triangles = (ST_GeomFromText('{polygonString}')) WHERE id = {id}";
+
+                    using (var cmd = new NpgsqlCommand(sql, connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error while inserting meshes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         public List<GeometryMesh> GetMeshes()
         {
             List<GeometryMesh> meshes = new List<GeometryMesh>();
@@ -110,7 +154,7 @@ namespace PostGISTest
 
             try
             {
-                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM geometry", connection))
+                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM MGeometry", connection))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -125,7 +169,7 @@ namespace PostGISTest
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error while getting meshes", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

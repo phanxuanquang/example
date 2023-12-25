@@ -38,7 +38,5 @@ namespace ModelViewer
             this.transparency = transparency;
             mesh = GetMeshFrom(model);
         }
-
-
     }
 }
