@@ -102,33 +102,33 @@ namespace PostGISTest
 
             connection.Close();
         }
-
         public void InsertMeshFrom(Mesh mesh, int id)
         {
             var jsonData = JsonConvert.SerializeObject(mesh);
             JObject jsonObject = JObject.Parse(jsonData);
             JArray vertices = (JArray)jsonObject["vertexes"];
-            JArray faceIndexes = (JArray)jsonObject["faceIndexes"];
+            JArray vertexOrders = (JArray)jsonObject["faceIndexes"];
 
-            List<string> vertexStrings = new List<string>();
+            List<string> uniqueVertices = new List<string>();
             foreach (var vertex in vertices)
             {
-                vertexStrings.Add($"{vertex["x"]} {vertex["y"]} {vertex["z"]}");
+                uniqueVertices.Add($"{vertex["x"]} {vertex["y"]} {vertex["z"]}");
             }
 
-            List<string> fullVertexString = new List<string>();
-            foreach (int index in faceIndexes)
+            List<string> fullFaceVertices = new List<string>();
+            foreach (int order in vertexOrders)
             {
-                fullVertexString.Add(vertexStrings[index]);
+                fullFaceVertices.Add(uniqueVertices[order]);
             }
-            fullVertexString.Add(vertexStrings[0]);
+            fullFaceVertices.Add(uniqueVertices[0]);
+
             try
             {
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    string polygonString = $"POLYGON Z(({String.Join(",", fullVertexString)}))";
+                    string polygonString = $"POLYGON Z(({String.Join(",", fullFaceVertices)}))";
                     string sql = $"UPDATE MGeometry SET Triangles = (ST_GeomFromText('{polygonString}')) WHERE id = {id}";
 
                     using (var cmd = new NpgsqlCommand(sql, connection))
@@ -147,9 +147,9 @@ namespace PostGISTest
             }
         }
 
-        public List<GeometryMesh> GetMeshes()
+        public List<ExtendedMesh> GetMeshes()
         {
-            List<GeometryMesh> meshes = new List<GeometryMesh>();
+            List<ExtendedMesh> meshes = new List<ExtendedMesh>();
             connection.Open();
 
             try
@@ -163,7 +163,7 @@ namespace PostGISTest
                             int id = Convert.ToInt32(reader["id"]);
                             Mesh mesh = JsonConvert.DeserializeObject<Mesh>(reader["mesh"].ToString());
 
-                            GeometryMesh geometryMesh = new GeometryMesh(id, mesh);
+                            ExtendedMesh geometryMesh = new ExtendedMesh(id, mesh);
                             meshes.Add(geometryMesh);
                         }
                     }
@@ -176,6 +176,25 @@ namespace PostGISTest
 
             connection.Close();
             return meshes;
+        }
+
+        public void RemoveColumn(string table, string column)
+        {
+            connection.Open();
+
+            using (var transaction = connection.BeginTransaction())
+            {
+                string sql = $"ALTER TABLE {table} DROP COLUMN {column}";
+
+                using (var cmd = new NpgsqlCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+
+            connection.Close();
         }
     }
 }

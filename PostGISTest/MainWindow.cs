@@ -15,14 +15,15 @@ namespace PostGISTest
 
         private void LoadSQLiteDB_Button_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Database Files (*.db)|*.db|All Files (*.*)|*.*";
+            OpenFileDialog selectDatabaseDialog = new OpenFileDialog();
+            selectDatabaseDialog.Filter = "Database Files (*.db)|*.db|All Files (*.*)|*.*";
+            selectDatabaseDialog.Title = "Select a SQLite database to convert";
 
-            DialogResult result = openFileDialog.ShowDialog();
+            DialogResult result = selectDatabaseDialog.ShowDialog();
 
             if (result == DialogResult.OK)
             {
-                string selectedFilePath = openFileDialog.FileName;
+                string selectedFilePath = selectDatabaseDialog.FileName;
                 SQLitePath_Box.Text = selectedFilePath;
             }
         }
@@ -31,19 +32,29 @@ namespace PostGISTest
         {
             if (Server_Box.Text != String.Empty && Port_Box.Text != String.Empty && Database_Box.Text != String.Empty && Username_Box.Text != String.Empty && Password_Box.Text != String.Empty)
             {
-                var connectionString = String.Format("Host={0};Port={1};Database={2};Username={3};Password={4}", Server_Box.Text, Port_Box.Text, Database_Box.Text, Username_Box.Text, Password_Box.Text);
+                var connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
                 PostGISDatabase postGISDatabase = new PostGISDatabase(connectionString);
+
                 try
                 {
-                    postGISDatabase.InsertDataFrom(getExtractedTables(SQLitePath_Box.Text));
-                    List<GeometryMesh> meshes = postGISDatabase.GetMeshes();
-                    foreach (GeometryMesh mesh in meshes)
-                    {
-                        if (mesh.mesh != null)
+                    postGISDatabase.InsertDataFrom(GetDataFrom(SQLitePath_Box.Text));
+
+                    try {
+                        List<ExtendedMesh> extendedMeshes = postGISDatabase.GetMeshes();
+                        foreach (ExtendedMesh item in extendedMeshes)
                         {
-                            postGISDatabase.InsertMeshFrom(mesh.mesh, mesh.id);
+                            if (item.mesh != null)
+                            {
+                                postGISDatabase.InsertMeshFrom(item.mesh, item.id);
+                            }
                         }
+                        postGISDatabase.RemoveColumn("MGeometry", "Mesh");
                     }
+                    catch
+                    {
+                        // We can assume select database does not have geometry
+                    }
+
                     MessageBox.Show("Inserting data completely", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -58,7 +69,7 @@ namespace PostGISTest
             }
         }
 
-        private List<Table> getExtractedTables(string dataSource = @"D:\C++\Internship\SQLite\ModelDatabase.db")
+        private List<Table> GetDataFrom(string dataSource = @"D:\C++\Internship\SQLite\ModelDatabase.db")
         {
             using (SQLiteConnection connection = new SQLiteConnection($"Data Source={dataSource}"))
             {
@@ -66,12 +77,11 @@ namespace PostGISTest
 
                 List<Table> tables = new List<Table>();
 
-                foreach (DataRow tableRow in connection.GetSchema("Tables").Rows)
+                foreach (DataRow row in connection.GetSchema("Tables").Rows)
                 {
                     Table table = new Table();
 
-                    table.name = tableRow["TABLE_NAME"].ToString();
-
+                    table.name = row["TABLE_NAME"].ToString();
 
                     string selectQuery = $"SELECT * FROM {table.name}";
 
@@ -79,12 +89,10 @@ namespace PostGISTest
 
                     foreach (DataRow columnRow in columns.Rows)
                     {
-                        string columnName = columnRow["COLUMN_NAME"].ToString();
-                        table.columns.Add(columnName);
+                        table.columns.Add(columnRow["COLUMN_NAME"].ToString());
                     }
 
-                    SQLiteCommand command = new SQLiteCommand(selectQuery, connection);
-                    SQLiteDataReader reader = command.ExecuteReader();
+                    SQLiteDataReader reader = (new SQLiteCommand(selectQuery, connection)).ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -107,7 +115,6 @@ namespace PostGISTest
                 connection.Close();
 
                 return tables;
-
             }
         }
     }

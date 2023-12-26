@@ -38,13 +38,14 @@
             this.Password_Box = new System.Windows.Forms.TextBox();
             this.Username_Box = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.SuspendLayout();
             // 
             // Convert_Btn
             // 
             this.Convert_Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Convert_Btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Convert_Btn.Location = new System.Drawing.Point(924, 238);
+            this.Convert_Btn.Location = new System.Drawing.Point(924, 388);
             this.Convert_Btn.Name = "Convert_Btn";
             this.Convert_Btn.Size = new System.Drawing.Size(575, 129);
             this.Convert_Btn.TabIndex = 0;
@@ -56,10 +57,10 @@
             // 
             this.SQLitePath_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.SQLitePath_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SQLitePath_Box.Location = new System.Drawing.Point(87, 55);
+            this.SQLitePath_Box.Location = new System.Drawing.Point(61, 55);
             this.SQLitePath_Box.Name = "SQLitePath_Box";
             this.SQLitePath_Box.ReadOnly = true;
-            this.SQLitePath_Box.Size = new System.Drawing.Size(1595, 48);
+            this.SQLitePath_Box.Size = new System.Drawing.Size(1649, 48);
             this.SQLitePath_Box.TabIndex = 1;
             this.toolTip.SetToolTip(this.SQLitePath_Box, "Path to the selected .db file");
             // 
@@ -68,11 +69,11 @@
             this.LoadSQLiteDB_Button.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.LoadSQLiteDB_Button.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.LoadSQLiteDB_Button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
-            this.LoadSQLiteDB_Button.Location = new System.Drawing.Point(271, 238);
+            this.LoadSQLiteDB_Button.Location = new System.Drawing.Point(271, 388);
             this.LoadSQLiteDB_Button.Name = "LoadSQLiteDB_Button";
             this.LoadSQLiteDB_Button.Size = new System.Drawing.Size(575, 129);
             this.LoadSQLiteDB_Button.TabIndex = 2;
-            this.LoadSQLiteDB_Button.Text = "Select File";
+            this.LoadSQLiteDB_Button.Text = "Select Database";
             this.LoadSQLiteDB_Button.UseVisualStyleBackColor = true;
             this.LoadSQLiteDB_Button.Click += new System.EventHandler(this.LoadSQLiteDB_Button_Click);
             // 
@@ -81,7 +82,7 @@
             this.Server_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Server_Box.BackColor = System.Drawing.Color.White;
             this.Server_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Server_Box.Location = new System.Drawing.Point(87, 144);
+            this.Server_Box.Location = new System.Drawing.Point(87, 225);
             this.Server_Box.Name = "Server_Box";
             this.Server_Box.Size = new System.Drawing.Size(289, 45);
             this.Server_Box.TabIndex = 3;
@@ -93,7 +94,7 @@
             this.Port_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Port_Box.BackColor = System.Drawing.Color.White;
             this.Port_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Port_Box.Location = new System.Drawing.Point(414, 144);
+            this.Port_Box.Location = new System.Drawing.Point(414, 225);
             this.Port_Box.Name = "Port_Box";
             this.Port_Box.Size = new System.Drawing.Size(289, 45);
             this.Port_Box.TabIndex = 4;
@@ -105,11 +106,10 @@
             this.Database_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Database_Box.BackColor = System.Drawing.Color.White;
             this.Database_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Database_Box.Location = new System.Drawing.Point(740, 144);
+            this.Database_Box.Location = new System.Drawing.Point(740, 225);
             this.Database_Box.Name = "Database_Box";
             this.Database_Box.Size = new System.Drawing.Size(289, 45);
             this.Database_Box.TabIndex = 5;
-            this.Database_Box.Text = "dm";
             this.toolTip.SetToolTip(this.Database_Box, "Database Name | PostGIS Database");
             // 
             // Password_Box
@@ -117,7 +117,7 @@
             this.Password_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Password_Box.BackColor = System.Drawing.Color.White;
             this.Password_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Password_Box.Location = new System.Drawing.Point(1394, 144);
+            this.Password_Box.Location = new System.Drawing.Point(1394, 225);
             this.Password_Box.Name = "Password_Box";
             this.Password_Box.Size = new System.Drawing.Size(289, 45);
             this.Password_Box.TabIndex = 6;
@@ -130,19 +130,30 @@
             this.Username_Box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Username_Box.BackColor = System.Drawing.Color.White;
             this.Username_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Username_Box.Location = new System.Drawing.Point(1067, 144);
+            this.Username_Box.Location = new System.Drawing.Point(1067, 225);
             this.Username_Box.Name = "Username_Box";
             this.Username_Box.Size = new System.Drawing.Size(289, 45);
             this.Username_Box.TabIndex = 7;
             this.Username_Box.Text = "postgres";
             this.toolTip.SetToolTip(this.Username_Box, "Username | PostGIS Database");
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(61, 144);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(1649, 182);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "PostgreSQL Credential";
+            // 
             // TestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 29F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1770, 416);
+            this.ClientSize = new System.Drawing.Size(1770, 579);
             this.Controls.Add(this.Username_Box);
             this.Controls.Add(this.Password_Box);
             this.Controls.Add(this.Database_Box);
@@ -151,6 +162,7 @@
             this.Controls.Add(this.LoadSQLiteDB_Button);
             this.Controls.Add(this.SQLitePath_Box);
             this.Controls.Add(this.Convert_Btn);
+            this.Controls.Add(this.groupBox1);
             this.Name = "TestForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PostGIS Converter";
@@ -170,6 +182,7 @@
         private System.Windows.Forms.TextBox Password_Box;
         private System.Windows.Forms.TextBox Username_Box;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
 

@@ -72,6 +72,7 @@ namespace Model2OBJ
                         }
                         writer.Close();
                     }
+                    MessageBox.Show("3D object exported.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
