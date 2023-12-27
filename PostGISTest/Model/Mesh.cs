@@ -12,6 +12,26 @@ namespace PostGISTest
     {
         public List<Vertex> vertexes { get; set; }
         public List<int> faceIndexes { get; set; }
+        public Mesh()
+        {
+            vertexes = new List<Vertex>();
+            faceIndexes = new List<int>();
+        }
+
+        public void CreateMergedMeshesFrom(List<ExtendedMesh> meshes)
+        {
+            foreach (var item in meshes)
+            {
+                if (item.mesh != null)
+                {
+                    foreach (var index in item.mesh.faceIndexes)
+                    {
+                        faceIndexes.Add(index + vertexes.Count);
+                    }
+                    vertexes.AddRange(item.mesh.vertexes);
+                }
+            }
+        }
     }
 
     internal class ExtendedMesh

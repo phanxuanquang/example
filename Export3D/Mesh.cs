@@ -66,7 +66,7 @@ namespace Model2OBJ
                             writer.WriteLine(String.Format("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
                         }
 
-                        for (int i = 0; i < faceIndexes.Count; i = i + 3)
+                        for (int i = 0; i < faceIndexes.Count - 2; i++)
                         {
                             writer.WriteLine(String.Format("f {0} {1} {2}", faceIndexes[i] + 1, faceIndexes[i + 1] + 1, faceIndexes[i + 2] + 1));
                         }

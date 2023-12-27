@@ -14,6 +14,10 @@ namespace PostGISTest
         public PostGISDatabase(string conncectionString)
         {
             connection = new NpgsqlConnection(conncectionString);
+        }
+
+        public void InitTables()
+        {
             try
             {
                 connection.Open();
@@ -151,10 +155,9 @@ namespace PostGISTest
         {
             List<ExtendedMesh> meshes = new List<ExtendedMesh>();
             connection.Open();
-
             try
             {
-                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM MGeometry", connection))
+                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM MGeometry order by id", connection))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
