@@ -20,11 +20,11 @@ namespace PostGISTest
 
         public void CreateMergedMeshesFrom(List<ExtendedMesh> meshes)
         {
-            foreach (var item in meshes)
+            foreach (ExtendedMesh item in meshes)
             {
                 if (item.mesh != null)
                 {
-                    foreach (var index in item.mesh.faceIndexes)
+                    foreach (int index in item.mesh.faceIndexes)
                     {
                         faceIndexes.Add(index + vertexes.Count);
                     }

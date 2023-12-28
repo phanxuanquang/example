@@ -15,7 +15,6 @@ namespace PostGISTest
         {
             connection = new NpgsqlConnection(conncectionString);
         }
-
         public void InitTables()
         {
             try
@@ -34,35 +33,23 @@ namespace PostGISTest
         }
         private void CreateTablesFrom(string filePath)
         {
-            string GetScript()
+            if (!File.Exists(filePath))
             {
-                try
-                {
-                    if (!File.Exists(filePath))
-                    {
-                        MessageBox.Show("File not found. Please try again.", "Getting SQL script failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-
-                    return File.ReadAllText(filePath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Reading SQL script failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return String.Empty;
-                }
+                MessageBox.Show("File not found. Please try again.", "Getting SQL script failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            string sqlScript = GetScript();
+            string sqlScript = File.ReadAllText(filePath);
 
             if (!string.IsNullOrEmpty(sqlScript))
             {
-                using (var command = new NpgsqlCommand(sqlScript, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sqlScript, connection))
                 {
                     Execute(command, "Creating table failed");
                 }
             }
         }
-        private void Execute(NpgsqlCommand executer, string error)
+        private void Execute(NpgsqlCommand executer, string errorMessage)
         {
             try
             {
@@ -70,33 +57,25 @@ namespace PostGISTest
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, errorMessage, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public void InsertDataFrom(List<Table> tables)
         {
             connection.Open();
 
-            using (var transaction = connection.BeginTransaction())
+            using (NpgsqlTransaction transaction = connection.BeginTransaction())
             {
-                using (var cmd = new NpgsqlCommand())
+                using (NpgsqlCommand cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = connection;
 
-                    foreach (var table in tables)
+                    foreach (Table table in tables)
                     {
-                        foreach (var row in table.rows)
+                        foreach (string row in table.rows)
                         {
-                            try
-                            {
-                                cmd.CommandText = String.Format("INSERT INTO {0} ({1}) VALUES ({2})", table.name, String.Join(", ", table.columns), row);
-                                cmd.ExecuteNonQuery();
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message, "Error while inserting data", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
+                            cmd.CommandText = String.Format("INSERT INTO {0} ({1}) VALUES ({2})", table.name, String.Join(", ", table.columns), row);
+                            Execute(cmd, "Error while inserting data");
                         }
                     }
                 }
@@ -108,13 +87,13 @@ namespace PostGISTest
         }
         public void InsertMeshFrom(Mesh mesh, int id)
         {
-            var jsonData = JsonConvert.SerializeObject(mesh);
+            string jsonData = JsonConvert.SerializeObject(mesh);
             JObject jsonObject = JObject.Parse(jsonData);
             JArray vertices = (JArray)jsonObject["vertexes"];
             JArray vertexOrders = (JArray)jsonObject["faceIndexes"];
 
             List<string> uniqueVertices = new List<string>();
-            foreach (var vertex in vertices)
+            foreach (JToken vertex in vertices)
             {
                 uniqueVertices.Add($"{vertex["x"]} {vertex["y"]} {vertex["z"]}");
             }
@@ -126,40 +105,32 @@ namespace PostGISTest
             }
             fullFaceVertices.Add(uniqueVertices[0]);
 
-            try
+            connection.Open();
+
+            using (NpgsqlTransaction transaction = connection.BeginTransaction())
             {
-                connection.Open();
+                string polygonString = $"POLYGON Z(({String.Join(",", fullFaceVertices)}))";
+                string sql = $"UPDATE MGeometry SET Triangles = (ST_GeomFromText('{polygonString}')) WHERE id = {id}";
 
-                using (var transaction = connection.BeginTransaction())
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
                 {
-                    string polygonString = $"POLYGON Z(({String.Join(",", fullFaceVertices)}))";
-                    string sql = $"UPDATE MGeometry SET Triangles = (ST_GeomFromText('{polygonString}')) WHERE id = {id}";
-
-                    using (var cmd = new NpgsqlCommand(sql, connection))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    transaction.Commit();
+                    Execute(cmd, "Error while inserting meshes");
                 }
 
-                connection.Close();
+                transaction.Commit();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error while inserting meshes", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
+            connection.Close();
+        }
         public List<ExtendedMesh> GetMeshes()
         {
             List<ExtendedMesh> meshes = new List<ExtendedMesh>();
             connection.Open();
             try
             {
-                using (var cmd = new NpgsqlCommand("SELECT id, mesh FROM MGeometry order by id", connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT id, mesh FROM MGeometry order by id", connection))
                 {
-                    using (var reader = cmd.ExecuteReader())
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -185,13 +156,13 @@ namespace PostGISTest
         {
             connection.Open();
 
-            using (var transaction = connection.BeginTransaction())
+            using (NpgsqlTransaction transaction = connection.BeginTransaction())
             {
                 string sql = $"ALTER TABLE {table} DROP COLUMN {column}";
 
-                using (var cmd = new NpgsqlCommand(sql, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
                 {
-                    cmd.ExecuteNonQuery();
+                    Execute(cmd, "Removing column failed");
                 }
 
                 transaction.Commit();

@@ -1,6 +1,5 @@
 ﻿using Aspose.ThreeD;
 using Newtonsoft.Json;
-using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,8 +17,6 @@ namespace PostGISTest
         {
             InitializeComponent();
         }
-
-        
         private List<Table> GetDataFrom(string dataSource = @"D:\C++\Internship\SQLite\ModelDatabase.db")
         {
             using (SQLiteConnection connection = new SQLiteConnection($"Data Source={dataSource}"))
@@ -72,7 +69,7 @@ namespace PostGISTest
         {
             try
             {
-                var scene = Scene.FromFile(OBJpath);
+                Scene scene = Scene.FromFile(OBJpath);
                 scene.Save(OBJpath.Replace("obj", "glb"));
             }
             catch (Exception ex)
@@ -89,7 +86,7 @@ namespace PostGISTest
 
                 try
                 {
-                    foreach (var vertex in combinedMesh.vertexes)
+                    foreach (Vertex vertex in combinedMesh.vertexes)
                     {
                         writer.WriteLine(String.Format("v {0} {1} {2}", vertex.x, vertex.y, vertex.z));
                     }
@@ -125,11 +122,17 @@ namespace PostGISTest
                 Database_Box.Focus();
             }
         }
+        private void SQLitePath_Box_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            LoadSQLiteDB_Button_Click(sender, e);
+        }
         private void Convert_Btn_Click(object sender, EventArgs e)
         {
             if (Server_Box.Text != String.Empty && Port_Box.Text != String.Empty && Database_Box.Text != String.Empty && Username_Box.Text != String.Empty && Password_Box.Text != String.Empty)
             {
+                connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
                 postGISDatabase = new PostGISDatabase(connectionString);
+
                 postGISDatabase.InitTables();
                 try
                 {
@@ -176,7 +179,7 @@ namespace PostGISTest
 
             saveDialog.Title = "Export to 3D object file";
             saveDialog.Filter = "3D Object (*.obj)|*.obj";
-            saveDialog.FileName = $"Navisworks Model - {DateTime.Now.ToString("MMdd-HHmm")}.obj";
+            saveDialog.FileName = $"Navisworks Model - {DateTime.Now:MMdd-HHmm}.obj";
             saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             if (saveDialog.ShowDialog() == DialogResult.OK)
@@ -193,7 +196,7 @@ namespace PostGISTest
                     MessageBox.Show(ex.Message, "Exporting to OBJ failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                MessageBox.Show("Exporting to 3D object file completely.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Exporting to 3D object file completely.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         private void ExportJSON_Btn_Click(object sender, EventArgs e)
@@ -229,13 +232,10 @@ namespace PostGISTest
 
                     writer.Close();
                 }
+
+                MessageBox.Show("Exporting to JSON file completely.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         #endregion
-
-        private void SQLitePath_Box_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            LoadSQLiteDB_Button_Click(sender, e);
-        }
     }
 }
