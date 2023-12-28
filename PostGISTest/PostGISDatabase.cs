@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.IO;
 using System.Windows.Forms;
 
@@ -31,24 +32,6 @@ namespace PostGISTest
                 connection.Close();
             }
         }
-        private void CreateTablesFrom(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                MessageBox.Show("File not found. Please try again.", "Getting SQL script failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string sqlScript = File.ReadAllText(filePath);
-
-            if (!string.IsNullOrEmpty(sqlScript))
-            {
-                using (NpgsqlCommand command = new NpgsqlCommand(sqlScript, connection))
-                {
-                    Execute(command, "Creating table failed");
-                }
-            }
-        }
         private void Execute(NpgsqlCommand executer, string errorMessage)
         {
             try
@@ -74,7 +57,7 @@ namespace PostGISTest
                     {
                         foreach (string row in table.rows)
                         {
-                            cmd.CommandText = String.Format("INSERT INTO {0} ({1}) VALUES ({2})", table.name, String.Join(", ", table.columns), row);
+                            cmd.CommandText = $"INSERT INTO {table.name} ({String.Join(", ", table.columns)}) VALUES ({row})";
                             Execute(cmd, "Error while inserting data");
                         }
                     }
@@ -151,7 +134,6 @@ namespace PostGISTest
             connection.Close();
             return meshes;
         }
-
         public void RemoveColumn(string table, string column)
         {
             connection.Open();
@@ -169,6 +151,87 @@ namespace PostGISTest
             }
 
             connection.Close();
+        }
+        private void CreateTablesFrom(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show("File not found. Please try again.", "Getting SQL script failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string sqlScript = File.ReadAllText(filePath);
+
+            if (!string.IsNullOrEmpty(sqlScript))
+            {
+                using (NpgsqlCommand command = new NpgsqlCommand(sqlScript, connection))
+                {
+                    Execute(command, "Creating table failed");
+                }
+            }
+        }
+
+        public List<Triangle> GetTriangles()
+        {
+            List<Triangle> triangles = new List<Triangle>();
+            connection.Open();
+            try
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand("select id, ST_AsText(triangles) from mgeometry where triangles is not null order by id", connection))
+                {
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = Convert.ToInt32(reader["id"]);
+                            string triangle = reader["st_astext"].ToString();
+
+                            Triangle newTriangle = new Triangle(id, triangle);
+                            triangles.Add(newTriangle);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error while getting triangles", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            connection.Close();
+            return triangles;
+        }
+        public void InsertTrianglesFrom(List<Triangle> triangles)
+        {
+            connection.Open();
+
+            using (NpgsqlTransaction transaction = connection.BeginTransaction())
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = connection;
+
+                    foreach (Triangle triangle in triangles)
+                    {
+                        cmd.CommandText = $"INSERT INTO Geo (id, geos) VALUES ({triangle.id}, ST_GeomFromText('{triangle.triangle}'))";
+                        Execute(cmd, "Error while inserting triangles");
+                    }
+                }
+
+                transaction.Commit();
+            }
+
+            connection.Close();
+        }
+    }
+
+    internal class Triangle
+    {
+        public int id;
+        public string triangle;
+        public Triangle(int id, string triangle)
+        {
+            this.id = id;
+            this.triangle = triangle;
         }
     }
 }

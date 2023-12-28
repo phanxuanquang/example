@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace PostGISTest
@@ -12,7 +13,7 @@ namespace PostGISTest
     public partial class TestForm : Form
     {
         PostGISDatabase postGISDatabase;
-        string connectionString;
+        private string connectionString;
         public TestForm()
         {
             InitializeComponent();
@@ -25,37 +26,36 @@ namespace PostGISTest
 
                 List<Table> tables = new List<Table>();
 
-                foreach (DataRow row in connection.GetSchema("Tables").Rows)
+                DataTable tablesSchema = connection.GetSchema("Tables");
+
+                foreach (DataRow row in tablesSchema.Rows)
                 {
-                    Table table = new Table();
+                    string tableName = row["TABLE_NAME"].ToString();
+                    Table table = new Table { name = tableName };
 
-                    table.name = row["TABLE_NAME"].ToString();
+                    DataTable columns = connection.GetSchema("Columns", new[] { null, null, tableName });
+                    List<string> columnNames = columns.AsEnumerable().Select(col => col.Field<string>("COLUMN_NAME")).ToList();
+                    table.columns.AddRange(columnNames);
 
-                    string selectQuery = $"SELECT * FROM {table.name}";
+                    string selectQuery = $"SELECT * FROM {tableName}";
+                    SQLiteCommand command = new SQLiteCommand(selectQuery, connection);
 
-                    DataTable columns = connection.GetSchema("Columns", new[] { null, null, table.name });
-
-                    foreach (DataRow columnRow in columns.Rows)
+                    using (SQLiteDataReader reader = command.ExecuteReader())
                     {
-                        table.columns.Add(columnRow["COLUMN_NAME"].ToString());
-                    }
-
-                    SQLiteDataReader reader = (new SQLiteCommand(selectQuery, connection)).ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        List<string> fieldValues = new List<string>();
-
-                        for (int i = 0; i < reader.FieldCount; i++)
+                        while (reader.Read())
                         {
-                            object value = reader[i];
-                            string valueString = (value == DBNull.Value || value == null) ? "NULL" : (value is string) ? $"'{value}'" : value.ToString();
-                            fieldValues.Add(valueString);
-                        }
+                            List<string> fieldValues = new List<string>();
 
-                        table.rows.Add(string.Join(", ", fieldValues));
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                object value = reader[i];
+                                string valueString = (value == DBNull.Value || value == null) ? "NULL" : (value is string) ? $"'{value}'" : value.ToString();
+                                fieldValues.Add(valueString);
+                            }
+
+                            table.rows.Add(string.Join(", ", fieldValues));
+                        }
                     }
-                    reader.Close();
 
                     tables.Add(table);
                 }
@@ -223,7 +223,12 @@ namespace PostGISTest
                     {
                         combinedMesh.CreateMergedMeshesFrom(postGISDatabase.GetMeshes());
 
-                        writer.WriteLine(JsonConvert.SerializeObject(combinedMesh, Formatting.Indented));
+                        foreach(var ok in combinedMesh.vertexes)
+                        {
+                            writer.WriteLine(ok.ToString() + ",");
+                        }
+
+                        //writer.WriteLine(JsonConvert.SerializeObject(combinedMesh, Formatting.Indented));
                     }
                     catch (Exception ex)
                     {
@@ -237,5 +242,13 @@ namespace PostGISTest
             }
         }
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
+            postGISDatabase = new PostGISDatabase(connectionString);
+            
+            postGISDatabase.InsertTrianglesFrom(postGISDatabase.GetTriangles());
+        }
     }
 }
