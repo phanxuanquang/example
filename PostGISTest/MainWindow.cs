@@ -19,21 +19,7 @@ namespace PostGISTest
             InitializeComponent();
         }
 
-        private void LoadSQLiteDB_Button_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog selectDatabaseDialog = new OpenFileDialog();
-            selectDatabaseDialog.Filter = "Database Files (*.db)|*.db|All Files (*.*)|*.*";
-            selectDatabaseDialog.Title = "Select a SQLite database to convert";
-
-            DialogResult result = selectDatabaseDialog.ShowDialog();
-
-            if (result == DialogResult.OK)
-            {
-                string selectedFilePath = selectDatabaseDialog.FileName;
-                SQLitePath_Box.Text = selectedFilePath;
-                Convert_Btn.Enabled = true;
-            }
-        }
+        
         private List<Table> GetDataFrom(string dataSource = @"D:\C++\Internship\SQLite\ModelDatabase.db")
         {
             using (SQLiteConnection connection = new SQLiteConnection($"Data Source={dataSource}"))
@@ -123,6 +109,22 @@ namespace PostGISTest
         }
 
         #region Button Events
+        private void LoadSQLiteDB_Button_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog selectDatabaseDialog = new OpenFileDialog();
+            selectDatabaseDialog.Filter = "Database Files (*.db)|*.db|All Files (*.*)|*.*";
+            selectDatabaseDialog.Title = "Select a SQLite database to convert";
+
+            DialogResult result = selectDatabaseDialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                string selectedFilePath = selectDatabaseDialog.FileName;
+                SQLitePath_Box.Text = selectedFilePath;
+                Convert_Btn.Enabled = true;
+                Database_Box.Focus();
+            }
+        }
         private void Convert_Btn_Click(object sender, EventArgs e)
         {
             if (Server_Box.Text != String.Empty && Port_Box.Text != String.Empty && Database_Box.Text != String.Empty && Username_Box.Text != String.Empty && Password_Box.Text != String.Empty)
@@ -144,7 +146,8 @@ namespace PostGISTest
                             }
                         }
                         ExportOBJ_Btn.Enabled = true;
-                        postGISDatabase.RemoveColumn("MGeometry", "Mesh");
+                        ExportJSON_Btn.Enabled = true;
+                        //postGISDatabase.RemoveColumn("MGeometry", "Mesh");
                     }
                     catch
                     {
@@ -229,5 +232,10 @@ namespace PostGISTest
             }
         }
         #endregion
+
+        private void SQLitePath_Box_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            LoadSQLiteDB_Button_Click(sender, e);
+        }
     }
 }

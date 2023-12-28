@@ -67,6 +67,7 @@
             this.SQLitePath_Box.Size = new System.Drawing.Size(1684, 48);
             this.SQLitePath_Box.TabIndex = 1;
             this.toolTip.SetToolTip(this.SQLitePath_Box, "Path to the selected .db file");
+            this.SQLitePath_Box.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.SQLitePath_Box_MouseDoubleClick);
             // 
             // LoadSQLiteDB_Button
             // 
@@ -160,6 +161,7 @@
             // ExportOBJ_Btn
             // 
             this.ExportOBJ_Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.ExportOBJ_Btn.Enabled = false;
             this.ExportOBJ_Btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ExportOBJ_Btn.Location = new System.Drawing.Point(900, 374);
             this.ExportOBJ_Btn.Name = "ExportOBJ_Btn";
@@ -172,6 +174,7 @@
             // ExportJSON_Btn
             // 
             this.ExportJSON_Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.ExportJSON_Btn.Enabled = false;
             this.ExportJSON_Btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ExportJSON_Btn.Location = new System.Drawing.Point(1326, 374);
             this.ExportJSON_Btn.Name = "ExportJSON_Btn";
