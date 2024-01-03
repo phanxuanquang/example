@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model2OBJ", "Export3D\Model
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostGISTest", "PostGISTest\PostGISTest.csproj", "{49F0DF5E-E0FC-4C30-8825-F17457672B6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgisHelper", "PostgisHelper\PostgisHelper.csproj", "{D7AAA991-6802-4F5D-993A-203389A3CE49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{49F0DF5E-E0FC-4C30-8825-F17457672B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F0DF5E-E0FC-4C30-8825-F17457672B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F0DF5E-E0FC-4C30-8825-F17457672B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7AAA991-6802-4F5D-993A-203389A3CE49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7AAA991-6802-4F5D-993A-203389A3CE49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7AAA991-6802-4F5D-993A-203389A3CE49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7AAA991-6802-4F5D-993A-203389A3CE49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

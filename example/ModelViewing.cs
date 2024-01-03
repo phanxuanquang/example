@@ -1,5 +1,6 @@
 ﻿using Autodesk.Navisworks.Api;
 using ModelViewer;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -36,7 +37,6 @@ namespace Viewer
                 propertyCategoryTab.Controls.Add(propertiesTable);
             }
         }
-
         private int getParentID(int currentID, List<ModelItem> models)
         {
             if (models.Contains(models[currentID].Parent))
@@ -49,17 +49,30 @@ namespace Viewer
         [System.Obsolete]
         private void ExportButton_Click(object sender, System.EventArgs e)
         {
-            SQLiteDatabase databaseExporter = new SQLiteDatabase(@"D:\C++\Internship\SQLite\ModelDatabase.db");
-            Export2Database(databaseExporter);
-        }
+            SaveFileDialog saveDialog = new SaveFileDialog();
 
-        [System.Obsolete]
-        private void Export2PostGISButton_Click(object sender, System.EventArgs e)
-        {
-            PostGISDatabase databaseExporter = new PostGISDatabase("Host=localhost;Port=5432;Database=pol;Username=postgres;Password=137925;");
-            //Export2Database(databaseExporter);
-        }
+            saveDialog.Title = "Export to SQLite database";
+            saveDialog.Filter = "SQLite database (*.db)|*.db";
+            saveDialog.FileName = $"{DateTime.Now:MMdd-HHmm}";
+            saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                string outputLocation = saveDialog.FileName;
+
+                try
+                {
+                    SQLiteDatabase databaseExporter = new SQLiteDatabase(outputLocation);
+                    Export2Database(databaseExporter);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exporting to SQLite database failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                MessageBox.Show("Exporting to SQLite database completely.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
         private void Export2Database(dynamic databaseExporter)
         {
             databaseExporter.connection.Open();

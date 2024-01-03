@@ -1,18 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.IO;
 using System.Windows.Forms;
 
 namespace PostGISTest
 {
-    internal class PostGISDatabase
+    internal class PostgresDatabase
     {
         public NpgsqlConnection connection { get; set; }
-        public PostGISDatabase(string conncectionString)
+        public PostgresDatabase(string conncectionString)
         {
             connection = new NpgsqlConnection(conncectionString);
         }
@@ -43,7 +44,7 @@ namespace PostGISTest
                 MessageBox.Show(ex.Message, errorMessage, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public void InsertDataFrom(List<Table> tables)
+        public void Insert(List<Table> tables)
         {
             connection.Open();
 
@@ -68,7 +69,7 @@ namespace PostGISTest
 
             connection.Close();
         }
-        public void InsertMeshFrom(Mesh mesh, int id)
+        public void Insert(Mesh mesh, int id)
         {
             string jsonData = JsonConvert.SerializeObject(mesh);
             JObject jsonObject = JObject.Parse(jsonData);
@@ -105,6 +106,28 @@ namespace PostGISTest
 
             connection.Close();
         }
+        public void Insert(List<Triangle> triangles)
+        {
+            connection.Open();
+
+            using (NpgsqlTransaction transaction = connection.BeginTransaction())
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = connection;
+
+                    foreach (Triangle triangle in triangles)
+                    {
+                        cmd.CommandText = $"INSERT INTO Geo (id, geos) VALUES ({triangle.id}, ST_GeomFromText('{triangle.triangle}'))";
+                        Execute(cmd, "Error while inserting triangles");
+                    }
+                }
+
+                transaction.Commit();
+            }
+
+            connection.Close();
+        }
         public List<ExtendedMesh> GetMeshes()
         {
             List<ExtendedMesh> meshes = new List<ExtendedMesh>();
@@ -133,6 +156,67 @@ namespace PostGISTest
 
             connection.Close();
             return meshes;
+        }
+        public List<Triangle> GetTriangles()
+        {
+            List<Triangle> triangles = new List<Triangle>();
+            connection.Open();
+            try
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand("select id, ST_AsText(triangles) from mgeometry where triangles is not null order by id", connection))
+                {
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = Convert.ToInt32(reader["id"]);
+                            string triangle = reader["st_astext"].ToString();
+
+                            Triangle newTriangle = new Triangle(id, triangle);
+                            triangles.Add(newTriangle);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error while getting triangles", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            connection.Close();
+            return triangles;
+        }
+        public List<Polygon> GetPolygons()
+        {
+            List<Polygon> polygons = new List<Polygon>();
+            connection.Open();
+            try
+            {
+                NpgsqlCommand cmd = new NpgsqlCommand("SELECT ST_asText(triangles) FROM mgeometry WHERE triangles IS NOT NULL ORDER BY id", connection);
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string wktGeometry = reader["st_astext"].ToString();
+                    WKTReader readerGeometry = new WKTReader();
+                    Geometry geometry = readerGeometry.Read(wktGeometry);
+
+                    foreach (Coordinate coordinate in geometry.Coordinates)
+                    {
+                        if (geometry is Polygon polygon)
+                        {
+                            polygons.Add(polygon);
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error while getting meshes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            connection.Close();
+            return polygons;
         }
         public void RemoveColumn(string table, string column)
         {
@@ -171,59 +255,7 @@ namespace PostGISTest
             }
         }
 
-        public List<Triangle> GetTriangles()
-        {
-            List<Triangle> triangles = new List<Triangle>();
-            connection.Open();
-            try
-            {
-                using (NpgsqlCommand cmd = new NpgsqlCommand("select id, ST_AsText(triangles) from mgeometry where triangles is not null order by id", connection))
-                {
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int id = Convert.ToInt32(reader["id"]);
-                            string triangle = reader["st_astext"].ToString();
-
-                            Triangle newTriangle = new Triangle(id, triangle);
-                            triangles.Add(newTriangle);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error while getting triangles", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            connection.Close();
-            return triangles;
-        }
-        public void InsertTrianglesFrom(List<Triangle> triangles)
-        {
-            connection.Open();
-
-            using (NpgsqlTransaction transaction = connection.BeginTransaction())
-            {
-                using (NpgsqlCommand cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = connection;
-
-                    foreach (Triangle triangle in triangles)
-                    {
-                        cmd.CommandText = $"INSERT INTO Geo (id, geos) VALUES ({triangle.id}, ST_GeomFromText('{triangle.triangle}'))";
-                        Execute(cmd, "Error while inserting triangles");
-                    }
-                }
-
-                transaction.Commit();
-            }
-
-            connection.Close();
-        }
     }
-
     internal class Triangle
     {
         public int id;

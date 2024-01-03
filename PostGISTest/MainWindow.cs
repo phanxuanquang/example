@@ -1,5 +1,6 @@
 ﻿using Aspose.ThreeD;
-using Newtonsoft.Json;
+using NetTopologySuite.Geometries;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,11 +9,12 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+
 namespace PostGISTest
 {
     public partial class TestForm : Form
     {
-        PostGISDatabase postGISDatabase;
+        PostgresDatabase postGISDatabase;
         private string connectionString;
         public TestForm()
         {
@@ -65,16 +67,17 @@ namespace PostGISTest
                 return tables;
             }
         }
-        private void ExportGLB(string OBJpath)
+        private void ExportGLB_glTF(string OBJpath)
         {
             try
             {
                 Scene scene = Scene.FromFile(OBJpath);
+                scene.Save(OBJpath.Replace("obj", "gltf"));
                 scene.Save(OBJpath.Replace("obj", "glb"));
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Exporting to GLB file failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Exporting to GLB and glTF files failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void ExportOBJ(string outputPath)
@@ -131,12 +134,12 @@ namespace PostGISTest
             if (Server_Box.Text != String.Empty && Port_Box.Text != String.Empty && Database_Box.Text != String.Empty && Username_Box.Text != String.Empty && Password_Box.Text != String.Empty)
             {
                 connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
-                postGISDatabase = new PostGISDatabase(connectionString);
+                postGISDatabase = new PostgresDatabase(connectionString);
 
                 postGISDatabase.InitTables();
                 try
                 {
-                    postGISDatabase.InsertDataFrom(GetDataFrom(SQLitePath_Box.Text));
+                    postGISDatabase.Insert(GetDataFrom(SQLitePath_Box.Text));
 
                     try
                     {
@@ -145,7 +148,7 @@ namespace PostGISTest
                         {
                             if (item.mesh != null)
                             {
-                                postGISDatabase.InsertMeshFrom(item.mesh, item.id);
+                                postGISDatabase.Insert(item.mesh, item.id);
                             }
                         }
                         ExportOBJ_Btn.Enabled = true;
@@ -170,16 +173,16 @@ namespace PostGISTest
                 Database_Box.Focus();
             }
         }
-        private void Export3Dobject_Btn_Click(object sender, EventArgs e)
+        private void ExportAsObjects_Btn_Click(object sender, EventArgs e)
         {
             connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
-            postGISDatabase = new PostGISDatabase(connectionString);
+            postGISDatabase = new PostgresDatabase(connectionString);
 
             SaveFileDialog saveDialog = new SaveFileDialog();
 
             saveDialog.Title = "Export to 3D object file";
             saveDialog.Filter = "3D Object (*.obj)|*.obj";
-            saveDialog.FileName = $"Navisworks Model - {DateTime.Now:MMdd-HHmm}.obj";
+            saveDialog.FileName = $"{DateTime.Now:MMdd-HHmm}";
             saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             if (saveDialog.ShowDialog() == DialogResult.OK)
@@ -189,7 +192,7 @@ namespace PostGISTest
                 try
                 {
                     ExportOBJ(outputLocation);
-                    ExportGLB(outputLocation);
+                    ExportGLB_glTF(outputLocation);
                 }
                 catch (Exception ex)
                 {
@@ -202,7 +205,7 @@ namespace PostGISTest
         private void ExportJSON_Btn_Click(object sender, EventArgs e)
         {
             connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
-            postGISDatabase = new PostGISDatabase(connectionString);
+            postGISDatabase = new PostgresDatabase(connectionString);
 
             SaveFileDialog saveDialog = new SaveFileDialog();
 
@@ -223,7 +226,7 @@ namespace PostGISTest
                     {
                         combinedMesh.CreateMergedMeshesFrom(postGISDatabase.GetMeshes());
 
-                        foreach(var ok in combinedMesh.vertexes)
+                        foreach (Vertex ok in combinedMesh.vertexes)
                         {
                             writer.WriteLine(ok.ToString() + ",");
                         }
@@ -243,12 +246,94 @@ namespace PostGISTest
         }
         #endregion
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Test_Btn_Click(object sender, EventArgs e)
         {
             connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
-            postGISDatabase = new PostGISDatabase(connectionString);
-            
-            postGISDatabase.InsertTrianglesFrom(postGISDatabase.GetTriangles());
+            string sqlQuery = QueryCommand_Box.Text;
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            {
+                using (NpgsqlCommand command = new NpgsqlCommand(sqlQuery, connection))
+                {
+                    DataTable dataTable = new DataTable();
+
+                    try
+                    {
+                        connection.Open();
+                        NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(command);
+                        adapter.Fill(dataTable);
+
+                        ResultTable.DataSource = dataTable;
+
+                        foreach (DataGridViewColumn column in ResultTable.Columns)
+                        {
+                            column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                            column.HeaderCell.Style.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+
+                            column.HeaderText = column.HeaderText.ToUpper();
+                        }
+
+                        ResultTable.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.LightBlue;
+                        ResultTable.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+                        ResultTable.EnableHeadersVisualStyles = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Querying data failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void WriteAllCoords()
+        {
+            connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
+            postGISDatabase = new PostgresDatabase(connectionString);
+
+            using (StreamWriter writer = new StreamWriter(@"D:\C++\Internship\SQLite\output.txt"))
+            {
+                Mesh combinedMesh = new Mesh();
+                List<Polygon> polygons = postGISDatabase.GetPolygons();
+
+                try
+                {
+                    foreach (Polygon polygon in polygons)
+                    {
+                        foreach (Coordinate coord in polygon.Coordinates)
+                        {
+                            writer.WriteLine($"{coord.X} {coord.Y} {coord.Z},");
+                        }
+                    }
+                    MessageBox.Show("Writting coordinates completely", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    polygons.Clear();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Writting coordinates failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                writer.Close();
+            }
+        }
+
+        private void QueryCommand_Box_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)13)
+            {
+                Test_Btn_Click(sender, e);
+            }
+        }
+
+        private void ResultTable_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridViewCell selectedCell = ResultTable.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                Clipboard.SetText(selectedCell.Value.ToString());
+
+                MessageBox.Show("Cell value copied", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }
