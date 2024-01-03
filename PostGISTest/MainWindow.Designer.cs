@@ -44,6 +44,7 @@
             this.ExportJSON_Btn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.ResultTable = new System.Windows.Forms.DataGridView();
+            this.Output_Box = new System.Windows.Forms.RichTextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ResultTable)).BeginInit();
             this.SuspendLayout();
@@ -237,14 +238,25 @@
             this.ResultTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.ResultTable.BackgroundColor = System.Drawing.SystemColors.Control;
             this.ResultTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.ResultTable.Location = new System.Drawing.Point(30, 371);
+            this.ResultTable.Location = new System.Drawing.Point(30, 534);
             this.ResultTable.Name = "ResultTable";
             this.ResultTable.ReadOnly = true;
             this.ResultTable.RowHeadersWidth = 92;
             this.ResultTable.RowTemplate.Height = 28;
-            this.ResultTable.Size = new System.Drawing.Size(1871, 618);
+            this.ResultTable.Size = new System.Drawing.Size(1871, 455);
             this.ResultTable.TabIndex = 14;
             this.ResultTable.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ResultTable_CellDoubleClick);
+            // 
+            // Output_Box
+            // 
+            this.Output_Box.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Output_Box.Location = new System.Drawing.Point(30, 379);
+            this.Output_Box.Name = "Output_Box";
+            this.Output_Box.Size = new System.Drawing.Size(1871, 140);
+            this.Output_Box.TabIndex = 15;
+            this.Output_Box.Text = "";
             // 
             // TestForm
             // 
@@ -252,6 +264,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1928, 1001);
+            this.Controls.Add(this.Output_Box);
             this.Controls.Add(this.ResultTable);
             this.Controls.Add(this.QueryCommand_Box);
             this.Controls.Add(this.button1);
@@ -290,6 +303,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox QueryCommand_Box;
         private System.Windows.Forms.DataGridView ResultTable;
+        private System.Windows.Forms.RichTextBox Output_Box;
     }
 }
 

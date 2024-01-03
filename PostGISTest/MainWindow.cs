@@ -8,6 +8,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using PostgisUtilities;
 
 
 namespace PostGISTest
@@ -244,46 +245,25 @@ namespace PostGISTest
                 MessageBox.Show("Exporting to JSON file completely.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        #endregion
-
-        private void Test_Btn_Click(object sender, EventArgs e)
+        private void QueryCommand_Box_KeyPress(object sender, KeyPressEventArgs e)
         {
-            connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
-            string sqlQuery = QueryCommand_Box.Text;
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            if (e.KeyChar == (char)13)
             {
-                using (NpgsqlCommand command = new NpgsqlCommand(sqlQuery, connection))
-                {
-                    DataTable dataTable = new DataTable();
-
-                    try
-                    {
-                        connection.Open();
-                        NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(command);
-                        adapter.Fill(dataTable);
-
-                        ResultTable.DataSource = dataTable;
-
-                        foreach (DataGridViewColumn column in ResultTable.Columns)
-                        {
-                            column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            column.HeaderCell.Style.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-
-                            column.HeaderText = column.HeaderText.ToUpper();
-                        }
-
-                        ResultTable.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.LightBlue;
-                        ResultTable.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-                        ResultTable.EnableHeadersVisualStyles = false;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Querying data failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+                Test_Btn_Click(sender, e);
             }
         }
+        private void ResultTable_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridViewCell selectedCell = ResultTable.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                Clipboard.SetText(selectedCell.Value.ToString());
+
+                MessageBox.Show("Cell value copied", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        #endregion
 
         private void WriteAllCoords()
         {
@@ -315,25 +295,50 @@ namespace PostGISTest
                 writer.Close();
             }
         }
-
-        private void QueryCommand_Box_KeyPress(object sender, KeyPressEventArgs e)
+        private void QueryData()
         {
-            if (e.KeyChar == (char)13)
+            connectionString = $"Host={Server_Box.Text};Port={Port_Box.Text};Database={Database_Box.Text};Username={Username_Box.Text};Password={Password_Box.Text}";
+            string sqlQuery = QueryCommand_Box.Text;
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                Test_Btn_Click(sender, e);
+                using (NpgsqlCommand command = new NpgsqlCommand(sqlQuery, connection))
+                {
+                    DataTable dataTable = new DataTable();
+
+                    try
+                    {
+                        connection.Open();
+                        NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(command);
+                        adapter.Fill(dataTable);
+
+                        ResultTable.DataSource = dataTable;
+
+                        #region Table Style Format
+                        foreach (DataGridViewColumn column in ResultTable.Columns)
+                        {
+                            column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                            column.HeaderCell.Style.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+
+                            column.HeaderText = column.HeaderText.ToUpper();
+                        }
+                        ResultTable.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.LightBlue;
+                        ResultTable.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+                        ResultTable.EnableHeadersVisualStyles = false;
+                        #endregion
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Querying data failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
         }
-
-        private void ResultTable_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void Test_Btn_Click(object sender, EventArgs e)
         {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
-            {
-                DataGridViewCell selectedCell = ResultTable.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-                Clipboard.SetText(selectedCell.Value.ToString());
-
-                MessageBox.Show("Cell value copied", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            PostgisHelper helper = new PostgisHelper("localhost", 5432, "f", "postgres", "137925");
+            var geometry = helper.SelectGeometryById("mgeometry", "triangles", "8");
+            //Output_Box.Text = helper.ST_AsText(geometry);
         }
     }
 }
